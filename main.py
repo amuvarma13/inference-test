@@ -24,7 +24,7 @@ app.add_middleware(
 tokeniser_name = "meta-llama/Llama-3.2-3B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(tokeniser_name)
 
-model_name = "amuvarma/convo-fpsft-13k"
+model_name = "amuvarma/convo-fpsft-13k-text"
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, attn_implementation="flash_attention_2")
 model = model.to("cuda")
 
