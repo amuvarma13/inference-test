@@ -50,5 +50,32 @@ generated_ids = model.generate(
 
 print(f"Time taken: {time.time() - start_time}")
 
+start_time = time.time()
+generated_ids = model.generate(
+    input_ids=input_ids,
+    attention_mask=attention_mask,
+    max_length=100,
+    num_return_sequences=1,
+    do_sample=True,
+    temperature=0.01,
+    eos_token_id=stop_token,
+)
+
+print(f"Time taken: {time.time() - start_time}")
+
+start_time = time.time()
+generated_ids = model.generate(
+    input_ids=input_ids,
+    attention_mask=attention_mask,
+    max_length=100,
+    num_return_sequences=1,
+    do_sample=True,
+    temperature=0.01,
+    eos_token_id=stop_token,
+)
+
+print(f"Time taken: {time.time() - start_time}")
+
+
 
 print(generated_ids.shape)
