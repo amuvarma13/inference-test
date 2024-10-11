@@ -38,7 +38,7 @@ def write_audio_to_wav(audio_data, filename, sample_rate=16000):
         wav_file.writeframes(audio_array_int.tobytes())
 
 # Example usage
-prompt = "My iphone isn't working, can you please tell me how to fix it?"
+prompt = "You will have a conversation and help support me: my iphone isn't working, could you please tell me how to fix it?"
 max_length = 3000
 
 response_data = text_to_speech_api_call(prompt, max_length)

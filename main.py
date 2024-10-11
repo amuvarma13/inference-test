@@ -58,6 +58,7 @@ async def inference(prompt_data: PromptRequest):
         max_length=max_length,
         num_return_sequences=1,
         eos_token_id=stop_token,
+        repetition_penalty=1.1,
     )
 
     generated_text, numpy_audio = parse_output(generated_ids)
