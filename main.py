@@ -21,7 +21,7 @@ attention_mask = attention_mask.to("cuda")
 stop_token = 128258
 
 model_name = "amuvarma/convo-fpsft-13k"
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
+model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, attn_implementation="flash_attention_2")
 model = model.to("cuda")
 
 start_time = time.time()
