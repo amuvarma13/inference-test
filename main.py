@@ -62,6 +62,8 @@ async def inference(prompt_data: PromptRequest):
     stop_token = 128258
 
     start_time = time.time()
+
+    print(f"going in are {input_ids.shape}")
     generated_ids = model.generate(
         input_ids=input_ids,
         attention_mask=attention_mask,
