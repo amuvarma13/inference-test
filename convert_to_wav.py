@@ -104,3 +104,4 @@ def process_input_ids(generated_ids):
     stacked_tensor = stacked_tensor.to("cuda")
     vq_post_emb = fa_decoder.vq2emb(stacked_tensor)
     recon_wav = fa_decoder.inference(vq_post_emb, spk_embs)
+    return recon_wav

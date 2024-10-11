@@ -1,7 +1,7 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 tokeniser_name = "meta-llama/Llama-3.2-3B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(tokeniser_name)
-import torch
+from convert_to_wav import process_input_ids
 
 def parse_output (generated_ids):
     sos_indices = (generated_ids[0] == 128000).nonzero(as_tuple=True)[0]
@@ -14,6 +14,10 @@ def parse_output (generated_ids):
     extracted_tokens = generated_ids[0][second_sos_index : eos_index]
 
     decoded_text = tokenizer.decode(extracted_tokens)
+
+    numpy_audio = process_input_ids(generated_ids)
+
+    print(f"numpy_audio shape: {numpy_audio.shape}")
 
 
     return decoded_text
