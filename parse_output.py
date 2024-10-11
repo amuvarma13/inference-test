@@ -1,6 +1,7 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 tokeniser_name = "meta-llama/Llama-3.2-3B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(tokeniser_name)
+import torch
 
 def parse_output (generated_ids):
     sos_indices = (generated_ids[0] == 128000).nonzero(as_tuple=True)[0]
@@ -13,4 +14,6 @@ def parse_output (generated_ids):
     extracted_tokens = generated_ids[0][second_sos_index : eos_index]
 
     decoded_text = tokenizer.decode(extracted_tokens)
+
+
     return decoded_text

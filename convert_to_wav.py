@@ -34,6 +34,9 @@ decoder_ckpt = hf_hub_download(repo_id="amphion/naturalspeech3_facodec", filenam
 fa_encoder.load_state_dict(torch.load(encoder_ckpt))
 fa_decoder.load_state_dict(torch.load(decoder_ckpt))
 
+fa_encoder = fa_encoder.to("cuda")
+fa_decoder = fa_decoder.to("cuda")
+
 def process_audio_and_get_vq_id():
 
     test_wav_path = "res.wav"
@@ -44,6 +47,7 @@ def process_audio_and_get_vq_id():
     with torch.no_grad():
 
         # encode
+        enc_out = enc_out.to("cuda")
         enc_out = fa_encoder(test_wav)
         print(enc_out.device)
         print(enc_out.shape)
@@ -55,3 +59,48 @@ def process_audio_and_get_vq_id():
 
 spk_embs = process_audio_and_get_vq_id()
 
+def process_input_ids(generated_ids):
+
+    token_to_find = 128257
+    token_to_remove = 128263
+
+    # Check if the token exists in the tensor
+    token_indices = (generated_ids == token_to_find).nonzero(as_tuple=True)
+
+    if len(token_indices[1]) > 0:
+        last_occurrence_idx = token_indices[1][-1].item()  # Get the last occurrence index
+        # Crop the tensor to the values after the last occurrence
+        cropped_tensor = generated_ids[:, last_occurrence_idx+1:]
+    else:
+        # If token not found, no cropping is done
+        cropped_tensor = generated_ids
+
+    mask = cropped_tensor != token_to_remove
+    cropped_tensor = cropped_tensor[mask].view(cropped_tensor.size(0), -1)
+
+    processed_tensor = cropped_tensor - 128266
+
+    original_shape = processed_tensor.shape
+    new_dim_1 = (original_shape[1] // 6) * 6
+    processed_tensor = processed_tensor[:, :new_dim_1]
+
+    processed_tensor_content = processed_tensor[:, ::6]
+
+    processed_tensor_prosody = processed_tensor[:, 1::6]
+    processed_tensor_prosody = processed_tensor_prosody - 1024
+
+    processed_tensor_content_1 = processed_tensor[:, 2::6]
+    processed_tensor_content_1 = processed_tensor_content_1 - 2*1024
+
+    processed_tensor_acoustic_1 = processed_tensor[:, 3::6]
+    processed_tensor_acoustic_1 = processed_tensor_acoustic_1 - 3*1024
+
+    processed_tensor_acoustic_2 = processed_tensor[:, 4::6]
+    processed_tensor_acoustic_2 = processed_tensor_acoustic_2 - 4*1024
+
+    processed_tensor_acoustic_3 = processed_tensor[:, 5::6]
+    processed_tensor_acoustic_3 = processed_tensor_acoustic_3 - 5*1024
+    stacked_tensor = torch.stack([processed_tensor_prosody, processed_tensor_content,processed_tensor_content_1, processed_tensor_acoustic_1,processed_tensor_acoustic_2, processed_tensor_acoustic_3, ], dim=0)
+    stacked_tensor = stacked_tensor.to("cuda")
+    vq_post_emb = fa_decoder.vq2emb(stacked_tensor)
+    recon_wav = fa_decoder.inference(vq_post_emb, spk_embs)
