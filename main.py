@@ -7,8 +7,18 @@ import uvicorn
 from typing import List, Optional
 from parse_output import parse_output
 from convert_to_wav import process_audio_and_get_vq_id
-
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
+
+
+# Add this block after creating the FastAPI app instance
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Load model and tokenizer
 tokeniser_name = "meta-llama/Llama-3.2-3B-Instruct"
