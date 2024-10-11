@@ -25,7 +25,7 @@ model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float
 generated_ids = model.generate(
     input_ids=input_ids,
     attention_mask=attention_mask,
-    max_length=1000,
+    max_length=10,
     num_return_sequences=1,
     do_sample=True,
     temperature=0.01,
