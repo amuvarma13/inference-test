@@ -1,5 +1,6 @@
 import torch
 from transformers import AutoModelForCausalLM, Trainer, TrainingArguments, AutoTokenizer
+import time
 
 tokeniser_name = "meta-llama/Llama-3.2-3B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(tokeniser_name)
@@ -23,6 +24,7 @@ model_name = "amuvarma/convo-fpsft-13k"
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
 model = model.to("cuda")
 
+start_time = time.time()
 generated_ids = model.generate(
     input_ids=input_ids,
     attention_mask=attention_mask,
@@ -32,5 +34,7 @@ generated_ids = model.generate(
     temperature=0.01,
     eos_token_id=stop_token,
 )
+
+print(f"Time taken: {time.time() - start_time}")
 
 print(generated_ids.shape)
