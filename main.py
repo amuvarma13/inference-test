@@ -43,8 +43,6 @@ async def inference(prompt_data: PromptRequest):
     max_length = prompt_data.max_length
     prepend_tokens = prompt_data.prepend_tokens
 
-    print("prepend_tokens", prepend_tokens)
-
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids
 
     start_token = torch.tensor([[128259]], dtype=torch.int64)
