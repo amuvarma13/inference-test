@@ -4,6 +4,7 @@ import time
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
+from parse_output import parse_output
 
 app = FastAPI()
 
@@ -53,7 +54,7 @@ async def inference(prompt_data: PromptRequest):
         eos_token_id=stop_token,
     )
 
-    generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+    generated_text = parse_output(generated_ids)
     end_time = time.time()
 
     return {
