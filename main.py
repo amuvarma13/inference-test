@@ -1,5 +1,4 @@
 import torch
-from datasets import load_dataset
 from transformers import AutoModelForCausalLM, Trainer, TrainingArguments, AutoTokenizer
 
 tokeniser_name = "meta-llama/Llama-3.2-3B-Instruct"
