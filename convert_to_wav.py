@@ -47,7 +47,7 @@ def process_audio_and_get_vq_id():
     with torch.no_grad():
 
         # encode
-        enc_out = enc_out.to("cuda")
+        test_wav = test_wav.to("cuda")
         enc_out = fa_encoder(test_wav)
         print(enc_out.device)
         print(enc_out.shape)
