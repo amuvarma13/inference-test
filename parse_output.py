@@ -11,7 +11,7 @@ def parse_output (generated_ids):
     eos_index = (generated_ids[0][second_sos_index:] == 128009).nonzero(as_tuple=True)[0][0].item() + second_sos_index
 
     # Extract the tokens between SOS and EOS
-    extracted_tokens = generated_ids[0][second_sos_index : eos_index]
+    extracted_tokens = generated_ids[0][second_sos_index +1: eos_index]
 
     decoded_text = tokenizer.decode(extracted_tokens)
 

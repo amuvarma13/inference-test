@@ -6,10 +6,12 @@
     <title>Text to Audio</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body style="background-color: #fff; color: #000; width: 100%;">
+<body style="background-color: #fff; color: #000; margin: 0; padding: 0; width: 100%; height: 100vh; display: flex; flex-direction: column;">
     <h1 style="font-size: 1rem; font-weight: normal; text-align: left; width: 100%; margin: 10px 0 0 20px; color: #777;">Canopy Labs Text-Speech v0.0</h1>
 
-    <div class="input-container" style="position: absolute; bottom: 0; width: 100%; background-color: #fff; display: flex; justify-content: center;">
+    <div id="messageContainer" style="flex-grow: 1; width: 100%; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; overflow-y: auto;"></div>
+
+    <div class="input-container" style="width: 100%; background-color: #fff; display: flex; justify-content: center; padding: 10px;">
         <input type="text" class="text-input" id="textInput" placeholder="Type your text here..." style="width: 90%; padding: 15px; font-size: 1rem; border: none; border-radius: 50px; background-color: #f0f0f0; color: #000; outline: none;">
     </div>
 
@@ -18,42 +20,66 @@
 
         document.getElementById('textInput').addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
-                const prompt = document.getElementById('textInput').value;
-                const url = "https://e2a9jg7rwha7y7-8080.proxy.runpod.net/inference";
-                const max_length = 100;
-                const prepend_tokens = false;
+                const prompt = this.value.trim();
+                if (prompt !== "") {
+                    // Clear the input field
+                    this.value = "";
 
-                const payload = {
-                    "prompt": prompt,
-                    "max_length": max_length,
-                    "prepend_tokens": gen_ids
-                };
+                    // Create and append message bubble immediately
+                    createMessageBubble(prompt);
 
-                const headers = {
-                    "Content-Type": "application/json"
-                };
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(payload)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                    // Send the POST request
+                    sendPostRequest(prompt);
+                }
             }
         });
 
-        function convertTextToAudio() {
-            const text = document.getElementById('textInput').value;
-            if (text) {
-                const msg = new SpeechSynthesisUtterance(text);
-                window.speechSynthesis.speak(msg);
-            }
+        function createMessageBubble(text) {
+            const messageBubble = document.createElement('div');
+            messageBubble.textContent = text;
+            messageBubble.style.cssText = "background-color: #f0f0f0; color: #000; padding: 10px 15px; border-radius: 15px; margin: 10px; max-width: 70%; align-self: flex-end; text-align: right; word-wrap: break-word;";
+            messageBubble.className = "message-bubble";
+            document.getElementById('messageContainer').appendChild(messageBubble);
+            
+            // Scroll to the bottom of the message container
+            messageBubble.scrollIntoView({ behavior: "smooth", block: "end" });
+        }
+
+        function createResponseBubble(text) {
+            const responseBubble = document.createElement('div');
+            responseBubble.textContent = text;
+            responseBubble.style.cssText = "background-color: #e0e0e0; color: #000; padding: 10px 15px; border-radius: 15px; margin: 10px; max-width: 70%; align-self: flex-start; text-align: left; word-wrap: break-word;";
+            responseBubble.className = "response-bubble";
+            document.getElementById('messageContainer').appendChild(responseBubble);
+            
+            // Scroll to the bottom of the message container
+            responseBubble.scrollIntoView({ behavior: "smooth", block: "end" });
+        }
+
+        function sendPostRequest(prompt) {
+            const url = "https://e2a9jg7rwha7y7-8080.proxy.runpod.net/inference";
+            const payload = {
+                "prompt": prompt,
+                "max_length": 100,
+                "gen_ids": gen_ids
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Create a response bubble for the generated text
+                if (data.generated_text) {
+                    createResponseBubble(data.generated_text);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
     </script>
 </body>
