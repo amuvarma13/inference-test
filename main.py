@@ -15,16 +15,18 @@ model_name = "amuvarma/convo-fpsft-13k"
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, attn_implementation="flash_attention_2")
 model = model.to("cuda")
 
-class Prompt(BaseModel):
+class PromptRequest(BaseModel):
     prompt: str
+    max_length: int = 500  # Default value of 500, can be overridden in the request
 
 @app.get("/ping")
 async def ping():
     return {"message": "pong"}
 
 @app.post("/inference")
-async def inference(prompt_data: Prompt):
+async def inference(prompt_data: PromptRequest):
     prompt = prompt_data.prompt
+    max_length = prompt_data.max_length
 
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids
 
@@ -44,7 +46,7 @@ async def inference(prompt_data: Prompt):
     generated_ids = model.generate(
         input_ids=input_ids,
         attention_mask=attention_mask,
-        max_length=100,
+        max_length=max_length,
         num_return_sequences=1,
         do_sample=True,
         temperature=0.01,
@@ -58,7 +60,8 @@ async def inference(prompt_data: Prompt):
         "input_prompt": prompt,
         "generated_text": generated_text,
         "inference_time": end_time - start_time,
-        "generated_shape": generated_ids.shape[1]
+        "generated_shape": generated_ids.shape[1],
+        "max_length": max_length
     }
 
 if __name__ == "__main__":
