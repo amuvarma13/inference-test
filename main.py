@@ -55,7 +55,7 @@ async def inference(prompt_data: PromptRequest):
         eos_token_id=stop_token,
     )
 
-    generated_text = parse_output(generated_ids)
+    generated_text, numpy_audio = parse_output(generated_ids)
     end_time = time.time()
 
     return {
@@ -63,7 +63,8 @@ async def inference(prompt_data: PromptRequest):
         "generated_text": generated_text,
         "inference_time": end_time - start_time,
         "generated_shape": generated_ids.shape[1],
-        "max_length": max_length
+        "max_length": max_length, 
+        "numpy_audio": numpy_audio.tolist()
     }
 
 if __name__ == "__main__":
