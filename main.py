@@ -48,8 +48,8 @@ async def inference(prompt_data: PromptRequest):
         attention_mask=attention_mask,
         max_length=max_length,
         num_return_sequences=1,
-        do_sample=True,
-        temperature=0.01,
+        # do_sample=True,
+        # temperature=0.01,
         eos_token_id=stop_token,
     )
 
