@@ -15,8 +15,8 @@ modified_input_ids = torch.cat([start_token, input_ids, end_tokens], dim=1)
 input_ids = modified_input_ids
 attention_mask = torch.ones_like(input_ids)
 
-input_ids = input_ids.to("cuda")
-attention_mask = attention_mask.to("cuda")
+input_ids = input_ids
+attention_mask = attention_mask
 stop_token = 128258
 
 model_name = "amuvarma/convo-fpsft-13k"
