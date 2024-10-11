@@ -48,6 +48,7 @@ if response_data:
     print(f"Generated Text: {response_data['generated_text']}")
     print(f"Inference Time: {response_data['inference_time']} seconds")
     print(f"Generated Shape: {response_data['generated_shape']}")
+    print(f"generated_ids Shape: {response_data['generated_ids']}")
     print(f"Max Length: {response_data['max_length']}")
     
     # Write the audio data to a WAV file
