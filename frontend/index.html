@@ -5,6 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text to Audio</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+
+        body{
+            font-family: Nunito, sans-serif;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+            width: 150px; /* Placeholder size for shimmer */
+            height: 20px; /* Placeholder height for shimmer */
+            border-radius: 15px;
+            margin: 10px 15px; /* Align shimmer with text padding */
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
 </head>
 <body style="background-color: #fff; color: #000; margin: 0; padding: 0; width: 100%; height: 100vh; display: flex; flex-direction: column;">
     <h1 style="font-size: 1rem; font-weight: normal; text-align: left; width: 100%; margin: 10px 0 0 20px; color: #777;">Canopy Labs Text-Speech v0.0</h1>
@@ -17,6 +44,7 @@
 
     <script>
         let gen_ids = [];
+        let message_counter = 0;
 
         document.getElementById('textInput').addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
@@ -28,8 +56,11 @@
                     // Create and append message bubble immediately
                     createMessageBubble(prompt);
 
+                    // Create the placeholder for the AI assistant
+                    const placeholderBubble = createPlaceholderBubble();
+
                     // Send the POST request
-                    sendPostRequest(prompt);
+                    sendPostRequest(prompt, placeholderBubble);
                 }
             }
         });
@@ -45,7 +76,7 @@
             messageBubble.scrollIntoView({ behavior: "smooth", block: "end" });
         }
 
-        function createResponseBubble(text, audioUrl) {
+        function createPlaceholderBubble() {
             // Create container for AI response
             const responseContainer = document.createElement('div');
             responseContainer.style.cssText = "margin: 10px; max-width: 70%; align-self: flex-start; word-wrap: break-word;";
@@ -56,34 +87,26 @@
             title.style.cssText = "color: #aaa; font-size: 0.8rem; font-weight: 300; margin-bottom: 5px; padding-left: 15px;";
             responseContainer.appendChild(title);
 
-            // Create the response bubble for the text
-            const responseBubble = document.createElement('div');
-            responseBubble.textContent = text;
-            responseBubble.style.cssText = "color: #000; padding: 10px 15px; text-align: left;";
-            responseBubble.className = "response-bubble";
-            responseContainer.appendChild(responseBubble);
-
-            // Create audio element for the response
-            if (audioUrl) {
-                const audioElement = document.createElement('audio');
-                audioElement.controls = true;
-                audioElement.src = audioUrl;
-                audioElement.style.cssText = "margin-top: 10px; width: 100%; max-width: 400px;";
-                responseContainer.appendChild(audioElement);
-            }
+            // Create the placeholder bubble with shimmer effect (no text)
+            const placeholderBubble = document.createElement('div');
+            placeholderBubble.className = "shimmer";
+            responseContainer.appendChild(placeholderBubble);
 
             // Append the container to the message container
             document.getElementById('messageContainer').appendChild(responseContainer);
             
             // Scroll to the bottom of the message container
             responseContainer.scrollIntoView({ behavior: "smooth", block: "end" });
+
+            return responseContainer;
         }
 
-        function sendPostRequest(prompt) {
+        function sendPostRequest(prompt, placeholderBubble) {
             const url = "https://e2a9jg7rwha7y7-8080.proxy.runpod.net/inference";
+            message_counter += 1;
             const payload = {
                 "prompt": prompt,
-                "max_length": 15000,
+                "max_length": message_counter * 6000,
                 "prepend_tokens": gen_ids
             };
 
@@ -99,19 +122,46 @@
                 if (data.generated_ids) {
                     gen_ids = [...data.generated_ids[0], 128262];
                 }
-                // Create a response bubble for the generated text
+                // Update the placeholder with the generated text and audio
                 if (data.generated_text) {
                     let audioUrl = null;
                     if (data.numpy_audio && data.numpy_audio.length > 0 && data.numpy_audio[0].length > 0) {
                         // Convert numpy audio array to a proper WAV Blob
                         audioUrl = convertFloat32ToWav(data.numpy_audio[0][0]);
                     }
-                    createResponseBubble(data.generated_text, audioUrl);
+                    updateResponseBubble(placeholderBubble, data.generated_text, audioUrl);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
             });
+        }
+
+        function updateResponseBubble(placeholderBubble, text, audioUrl) {
+            // Clear the placeholder bubble text
+            placeholderBubble.innerHTML = "";
+
+            // Create title for AI assistant
+            const title = document.createElement('div');
+            title.textContent = "AI ASSISTANT";
+            title.style.cssText = "color: #aaa; font-size: 0.8rem; font-weight: 300; margin-bottom: 5px; padding-left: 15px;";
+            placeholderBubble.appendChild(title);
+
+            // Create the response bubble for the text
+            const responseBubble = document.createElement('div');
+            responseBubble.textContent = text;
+            responseBubble.style.cssText = "color: #000; padding: 10px 15px; text-align: left;";
+            responseBubble.className = "response-bubble";
+            placeholderBubble.appendChild(responseBubble);
+
+            // Create audio element for the response
+            if (audioUrl) {
+                const audioElement = document.createElement('audio');
+                audioElement.controls = true;
+                audioElement.src = audioUrl;
+                audioElement.style.cssText = "margin-top: 10px; width: 100%; max-width: 400px;";
+                placeholderBubble.appendChild(audioElement);
+            }
         }
 
         function convertFloat32ToWav(audioData) {

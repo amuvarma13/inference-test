@@ -15,9 +15,11 @@ def parse_output (generated_ids):
 
     decoded_text = tokenizer.decode(extracted_tokens)
 
-    numpy_audio = process_input_ids(generated_ids)
+    # numpy_audio = process_input_ids(generated_ids)
 
-    print(f"numpy_audio shape: {numpy_audio.shape}")
+    # print(f"numpy_audio shape: {numpy_audio.shape}")
 
 
-    return decoded_text, numpy_audio
+    # return decoded_text, numpy_audio
+    
+    return decoded_text
