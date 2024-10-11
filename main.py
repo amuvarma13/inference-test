@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
 from parse_output import parse_output
+from convert_to_wav import process_audio_and_get_vq_id
 
 app = FastAPI()
 
