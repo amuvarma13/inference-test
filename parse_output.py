@@ -20,4 +20,4 @@ def parse_output (generated_ids):
     print(f"numpy_audio shape: {numpy_audio.shape}")
 
 
-    return decoded_text
+    return decoded_text, numpy_audio
