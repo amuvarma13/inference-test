@@ -83,8 +83,8 @@
             const url = "https://e2a9jg7rwha7y7-8080.proxy.runpod.net/inference";
             const payload = {
                 "prompt": prompt,
-                "max_length": 2000,
-                "gen_ids": gen_ids
+                "max_length": 15000,
+                "prepend_tokens": gen_ids
             };
 
             fetch(url, {
