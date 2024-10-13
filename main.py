@@ -63,28 +63,27 @@ async def inference(prompt_data: PromptRequest):
 
     start_time = time.time()
 
-    print(f"going in are {input_ids.shape}")
     generated_ids = model.generate(
         input_ids=input_ids,
         attention_mask=attention_mask,
         max_length=max_length,
         num_return_sequences=1,
         eos_token_id=stop_token,
-        repetition_penalty=1.1,
+        repetition_penalty=1.05,
     )
 
     # generated_text, numpy_audio = parse_output(generated_ids)
-    generated_text = parse_output(generated_ids)
+    numpy_audio = parse_output(generated_ids)
 
     end_time = time.time()
 
     return {
         "input_prompt": prompt,
-        "generated_text": generated_text,
+        "generated_text": "Audio generated successfully",
         "inference_time": end_time - start_time,
         "generated_shape": generated_ids.shape[1],
         "max_length": max_length, 
-        "numpy_audio": [[1,2,3]],
+        "numpy_audio": numpy_audio.tolist(),
         "prepended_tokens": prepend_tokens, 
         "generated_ids": generated_ids.tolist()
     }
