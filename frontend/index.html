@@ -106,7 +106,7 @@
             message_counter += 1;
             const payload = {
                 "prompt": prompt,
-                "max_length": message_counter * 6000,
+                "max_length": 3000,
                 "prepend_tokens": gen_ids
             };
 
@@ -125,8 +125,8 @@
                 // Update the placeholder with the generated text and audio
                 if (data.generated_text) {
                     let audioUrl = null;
-                    // if (data.numpy_audio && data.numpy_audio.length > 0 && data.numpy_audio[0].length > 0) {
-                    if (false){
+                    if (data.numpy_audio && data.numpy_audio.length > 0 && data.numpy_audio[0].length > 0) {
+                    // if (false){
                         // Convert numpy audio array to a proper WAV Blob
                         audioUrl = convertFloat32ToWav(data.numpy_audio[0][0]);
                     }
