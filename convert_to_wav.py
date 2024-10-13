@@ -102,6 +102,7 @@ def process_input_ids(generated_ids):
     processed_tensor_acoustic_3 = processed_tensor_acoustic_3 - 5*1024
     stacked_tensor = torch.stack([processed_tensor_prosody, processed_tensor_content,processed_tensor_content_1, processed_tensor_acoustic_1,processed_tensor_acoustic_2, processed_tensor_acoustic_3, ], dim=0)
     stacked_tensor = stacked_tensor.to("cuda")
+    print(stacked_tensor.shape)
     vq_post_emb = fa_decoder.vq2emb(stacked_tensor)
     recon_wav = fa_decoder.inference(vq_post_emb, spk_embs)
     return recon_wav
