@@ -66,10 +66,14 @@ async def inference(prompt_data: PromptRequest):
     generated_ids = model.generate(
         input_ids=input_ids,
         attention_mask=attention_mask,
-        max_length=max_length,
+        max_length=4000,
         num_return_sequences=1,
-        eos_token_id=stop_token,
+        do_sample=True,
+        temperature=0.1,
+        top_k=50,
+        top_p=0.95,
         repetition_penalty=1.05,
+        eos_token_id=stop_token,
     )
 
     # generated_text, numpy_audio = parse_output(generated_ids)
