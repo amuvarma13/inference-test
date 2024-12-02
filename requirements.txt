@@ -4,3 +4,4 @@ torch
 torchaudio
 librosa
 soundfile
+pyworld
