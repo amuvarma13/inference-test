@@ -1,4 +1,4 @@
-from naturalspeech3_facodec.ns3_codec import FACodecEncoder, FACodecDecoder
+from ns3_codec import FACodecEncoder, FACodecDecoder
 from huggingface_hub import hf_hub_download
 import torch
 import librosa
@@ -61,6 +61,8 @@ def process_audio_and_get_vq_id():
 spk_embs = process_audio_and_get_vq_id()
 
 def process_input_ids(generated_ids):
+
+    print("generated_ids", generated_ids)
 
     token_to_find = 128257
     token_to_remove = 128263
