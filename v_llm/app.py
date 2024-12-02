@@ -27,7 +27,7 @@ sampling_params = SamplingParams(
 )
 
 class InferenceResponse(BaseModel):
-    tokens: List[int]
+    wavs: List[int]
 
 @app.get("/generate", response_model=InferenceResponse)
 async def generate_text(prompt: str):
