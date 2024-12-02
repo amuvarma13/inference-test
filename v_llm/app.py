@@ -22,7 +22,7 @@ llm = LLM(model="amuvarma/3days-tagged-noreps-caps")
 sampling_params = SamplingParams(
     temperature=0.8,
     top_p=0.95,
-    max_tokens=100,
+    max_tokens=1000,
     repetition_penalty=1.1
 )
 
