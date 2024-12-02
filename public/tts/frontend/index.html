@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=0.95> -->
+
+    <title>Text to Audio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
+    <style>
+        body{
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+            background-color: #f6f7f8;
+            background-image: linear-gradient(to right,
+                    #f6f7f8 0%,
+                    #edeef1 20%,
+                    #f6f7f8 40%,
+                    #f6f7f8 100%);
+            background-repeat: no-repeat;
+            background-size: 800px 104px;
+            /* Adjust based on desired speed */
+            animation: shimmer 1.5s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -800px 0;
+            }
+
+            100% {
+                background-position: 800px 0;
+            }
+        }
+
+        body {
+            font-family: Nunito, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            color: #000;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+            width: 150px;
+            height: 20px;
+            border-radius: 15px;
+            margin: 10px 15px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .audio-visualizer-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .audio-visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            height: 40px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .visualizer-bar {
+            width: 3px;
+            height: 2px;
+            background-color: #e0e0e0;
+            transition: height 0.2s ease, background-color 0.2s ease;
+        }
+
+        .visualizer-bar.active {
+            background-color: #9A30F3;
+        }
+
+        .text-input {
+            width: 90%;
+            max-width: 600px;
+            padding: 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 50px;
+            background-color: #f0f0f0;
+            color: #000;
+            outline: none;
+            margin-top: 40px;
+        }
+
+        .user-text {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 10px;
+            /* background-color: #f0f0f0; */
+            width: 90%;
+            max-width: 600px;
+            font-family: monospace;
+        }
+
+        .inference-settings {
+            height: 250px;
+            min-height: min-content;
+            /* Increased height to accommodate new elements */
+            margin-top: 20px;
+            text-align: left;
+            border: #bbb solid 0.5px;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: max(80%, 350px);
+            /* margin-left: -min(0px, -calc(50vw - 205px)); */
+
+            /* Added padding for better spacing */
+            /* width: min(56%, 400px); */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .setting {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .setting label {
+            font-size: 0.9rem;
+            color: #555;
+            margin-right: 10px;
+        }
+
+        .slider-container,
+        .dropdown-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+ 
+
+        .slider-value {
+            display: inline-block;
+            width: 40px;
+            /* Fixed width to accommodate up to "10.0" */
+            text-align: right;
+            font-family: monospace;
+            /* Ensures uniform character width */
+        }
+
+        .dropdown-value {
+            display: inline-block;
+            width: 100px;
+            /* Fixed width to accommodate longer option texts */
+            text-align: left;
+        }
+
+        .clip-prompt-holder {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+            justify-content: space-between;
+
+        }
+
+        select {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .play-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: white;
+            color: #9A30F3;
+            border: none;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+        }
+
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Show Model Card Button Styles */
+
+        .demos-button {
+
+            background-color: #9A30F3;
+            /* Purple background */
+            color: #fff;
+            /* White text */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 1100;
+            /* Ensure it's below the model card */
+            transition: background-color 0.3s, transform 0.3s;
+            width: fit-content;
+
+        }
+
+        .demos-button-mobile{
+            background-color: #9A30F3;
+            /* Purple background */
+            color: #fff;
+            /* White text */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 1100;
+            /* Ensure it's below the model card */
+            transition: background-color 0.3s, transform 0.3s;
+            width: 80%;
+            margin-left: calc(5% - 10px);
+            margin-top: 30px;
+            margin-bottom: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .show-model-card-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #9A30F3;
+            /* Purple background */
+            color: #fff;
+            /* White text */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 1100;
+            /* Ensure it's below the model card */
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .show-model-card-button-mobile {
+    
+            background-color: #9A30F3;
+            /* Purple background */
+            color: #fff;
+            /* White text */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 1100;
+            width: 90vw;
+            margin-left: calc(10vw - 10px);
+            margin-top: 20px;
+            margin-bottom: -100px;
+            /* Ensure it's below the model card */
+            transition: background-color 0.3s, transform 0.3s;
+            display: none;
+        }
+
+        
+
+        .show-model-card-button:hover {
+            background-color: #7B1FA2;
+            /* Darker purple on hover */
+            transform: scale(1.05);
+        }
+
+        .show-model-card-button:active {
+            background-color: #5E12A5;
+            /* Even darker purple on active */
+            transform: scale(0.95);
+        }
+
+  
+        audio {
+            background: white;
+            border: none;
+            outline: none;
+            height: 25px;
+        }
+
+        audio::-webkit-media-controls-panel {
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        audio::-webkit-media-controls-enclosure {
+            background-color: transparent;
+        }
+
+
+        .tag-span {
+            color: #9A30F3;
+        }
+
+        .emoji {
+            font-size: 1.1em;
+            margin-right: 5px;
+            padding: 1px;
+        }
+
+        .clip-prompt-holder {
+            font-family: monospace;
+            padding-bottom: 10px;
+        }
+
+        /* Model Card Popup Styles */
+        .model-card {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            /* height: min(100%, fit-content); */
+            min-height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding-top: 10px;
+            padding-bottom: 10px;
+            
+
+            overflow-x: hidden;
+
+
+            /* Semi-transparent background */
+            z-index: 1200;
+            /* Increased z-index to appear above the button */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .model-card-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: min(1100px, 100vw);
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .model-card-content h3 {
+            margin-top: 0;
+            /* color: #9A30F3; */
+            /* text-align: center; */
+        }
+
+        .model-card-content .model-info {
+            margin-bottom: 20px;
+        }
+        .model-info{
+
+            max-height: 80vh;
+            overflow-y: scroll;
+        }
+
+        .model-info p {
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .close-button:hover {
+            color: #000;
+        }
+
+
+        .outputs-gen{
+            position: fixed;
+            top: 20px;
+            width: 500px;
+            padding: 10px;
+            border-radius: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            left: calc(50vw - 250px);
+            text-align: center;
+            border: solid #eee 0.5px;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Optional: Responsive adjustments */
+        @media (max-width: 600px) {
+            .inference-settings {
+                width: 80%;
+            }
+            .outputs-gen{
+                top: calc(100vh - 60px);   
+                width: 90vw;
+                left: 5vw
+            }
+
+            .dropdown-container{
+                margin-top: 10px;
+                margin-left: -2px;
+            }
+            .show-model-card-button{
+                display: none;
+            }
+            .show-model-card-button-mobile{
+                display: block;
+            }
+            .demos-button-mobile{
+                display: block;
+            }
+
+            .demos-button{
+                display: none;
+            }
+
+            .user-text {
+                width: 80%;
+            }
+            .text-input{
+                font-size: 0.9em;
+                width: 80% ;
+            }
+            .setting{
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .dropdown-value {
+                width: 80px;
+            }
+
+            .clip-prompt-holder{
+                flex-direction: column;
+            }
+
+            .slider-value{
+                margin-top: 10px;
+            }
+
+            .slider-class{
+            width: 250px;
+            margin-top: 10px;
+        }
+
+            
+        }
+
+        .download-holder {
+            /* width: 90%;
+            max-width: 600px; */
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+        }
+
+        .link {
+            background-color: white;
+            color: #9A30F3;
+            outline: none;
+            border: none;
+            text-decoration: underline;
+            text-align: center;
+            margin-left: -20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+
+
+    </style>
+</head>
+
+<body>
+
+    
+    <!-- Show Model Card Button -->
+    <button id="openModelCard" class="show-model-card-button">Show Model Card</button>
+
+    <div class="outputs-gen" id="outputsGen"> 
+        You are generating <span id="numTokensSpan"></span> tokens
+        which will take around <span id="timeSpan"></span> seconds to generate.
+    </div>
+    <!-- Demo Popup -->
+    <div id="demoPopup" class="model-card" role="dialog" 
+    style="display: flex;"
+    aria-labelledby="demoPopupTitle"
+        aria-modal="true">
+        <div class="model-card-content">
+            <button class="close-button" id="closeDemoPopup" aria-label="Close Demo Popup">&times;</button>
+            <h3 id="demoPopupTitle">Examples, instructions, and prompts</h3>
+            <div class="model-info">
+
+                <div class="clip-prompt-holder">
+                    <audio id="audioPlayer" controls>
+                        <source src="../clips/1.wav" type="audio/wav">
+                    </audio>
+                    <div class="flex">
+                        <span class="tag-span">&lt;normal&gt</span>
+                        I am a large language model, that can generate controllable speech. 
+                        <span class="tag-span"> &lt;/normal&gt</span>
+                    </div>
+                </div>
+                <div class="clip-prompt-holder">
+                    <audio id="audioPlayer" controls>
+                        <source src="../clips/2.wav" type="audio/wav">
+                    </audio>
+                    <div class="flex">
+                        <span class="tag-span">&lt;happy&gt</span>
+                        The user can control the emotion of the speech, using tags. 
+                        <span class="tag-span"> &lt;/happy&gt</span>
+                    </div>
+                </div>
+                <div class="clip-prompt-holder">
+                    <audio id="audioPlayer" controls>
+                        <source src="../clips/3.wav" type="audio/wav">
+                    </audio>
+                    <div class="flex">
+                        <span class="tag-span">&lt;sad&gt</span>
+                        Sometimes it can sound really sad like this.
+                        <span class="tag-span"> &lt;/sad&gt</span>
+                    </div>
+                </div>
+                <div class="clip-prompt-holder">
+                    <audio id="audioPlayer" controls>
+                        <source src="../clips/4.wav" type="audio/wav">
+                    </audio>
+                    <div class="flex">
+                        <span class="tag-span">&lt;slow&gt</span>
+                        Or I can speak much slower, than I would normally.
+                        <span class="tag-span"> &lt;/slow&gt</span>
+                    </div>
+                </div>
+                <div class="clip-prompt-holder">
+                    <audio id="audioPlayer" controls>
+                        <source src="../clips/5.wav" type="audio/wav">
+                    </audio>
+                    <div class="flex">
+                        <span class="tag-span">&lt;normal&gt</span>
+                        As I’m trained on older audio books, I don’t know slang and many modern words.
+                        <span class="tag-span"> &lt;/normal&gt</span>
+                    </div>
+                </div>
+                <div class="clip-prompt-holder">
+                    <audio id="audioPlayer" controls>
+                        <source src="../clips/6.wav" type="audio/wav">
+                    </audio>
+                    <div class="flex">
+                        <span class="tag-span">&lt;curious&gt</span>
+                        I suppose thats not that super surprising.
+                        <span class="tag-span"> &lt;/curious&gt</span>
+                    </div>
+                </div>
+                <div class="clip-prompt-holder">
+                    <audio id="audioPlayer" controls>
+                        <source src="../clips/7.wav" type="audio/wav">
+                    </audio>
+                    <div class="flex">
+                        <span class="tag-span">&lt;whisper&gt</span>
+                        Most sentences I trained on were between five and ten words.
+                        <span class="tag-span"> &lt;/whisper&gt</span>
+                    </div>
+                </div>
+                <div class="clip-prompt-holder">
+                    <audio id="audioPlayer" controls>
+                        <source src="../clips/8.wav" type="audio/wav">
+                    </audio>
+                    <div class="flex">
+                        <span class="tag-span">&lt;crying&gt</span>
+                         I often make mistakes, and don’t say words properly.
+                        <span class="tag-span"> &lt;/crying&gt</span>
+                    </div>
+                </div>
+        
+                <div class="clip-prompt-holder">
+                    <audio id="audioPlayer" controls>
+                        <source src="../clips/9.wav" type="audio/wav">
+                    </audio>
+                    <div class="flex">
+                        <span class="tag-span">&lt;normal&gt</span>
+                        This model is still very much under development, so stay tuned for updates.
+                        <span class="tag-span"> &lt;/normal&gt</span>
+                    </div>
+                </div>
+
+            <br/>
+            <p> <b>  PS: This LLM is quite prompt sensitive (our fault!). If you use words, it doesn't know, it won't work well. If you skip or use 
+            incorrect punctuation it won't work well. Also don't directly include tags in the prompt, use the drop down. 
+            If the model doesn't produce outputs that sound like the above you are probably doing something wrong with prompting so
+            ask amu@canopylabs.ai for help.
+                </br>
+            </br>
+             </b>      </p>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <h1
+        style="font-size: 1rem; font-weight: normal; text-align: left; width: 100%; margin: 10px 0 0 20px; color: #777;">
+        HTML-Speech-micro-v0.0</h1>
+
+        <button id="openModelCardMobile" class="show-model-card-button-mobile">Show Model Card</button>
+
+
+    <div class="main-container">
+        <div class="audio-visualizer-container">
+            <div class="audio-visualizer" id="audioVisualizer">
+                <!-- Bars will be added by JavaScript -->
+            </div>
+            <button id="playButton" class="play-button" style="display: none;">▶</button>
+
+        </div>
+        <div class="download-holder">
+            <a id="downloadButton" style="display: none;" download="generated_audio.wav">
+                <button class="link"> Download Audio Sample</button>
+            </a>
+        </div>
+        <input type="text" class="text-input" id="textInput"
+            placeholder="Aim for no slang, 4-10 word sentence, good spelling & grammar ...">
+
+        <div id="userText" class="user-text"></div>
+        <div class="demos-button-mobile" id="demos-button-mobile"> <span class="emoji">👋</span> Examples and instructions</div>
+
+        <div class="inference-settings">
+            <div class="demos-button" id="demos-button"> <span class="emoji">👋</span> Examples and instructions</div>
+
+            <h2 style="font-size: 1rem; color: #555; margin-bottom: 10px;">Inference Settings</h2>
+            <div class="setting">
+                <label for="temperature">Temperature (higher=more expressive but less stable):</label>
+                <div class="slider-container">
+                    <input type="range" id="temperature" name="temperature" min="0" max="1" step="0.01" value="0.5" class="slider-class"
+                        aria-label="Temperature">
+                    <span id="temperatureValue" class="slider-value">0.50</span>
+                </div>
+            </div>
+            <div class="setting">
+                <label for="duration">Output Tokens (500 toks per sec):</label>
+                <div class="slider-container">
+                    <input type="range" id="duration" name="duration" min="0" max="5000" step="1" value="1500" class="slider-class"
+                        aria-label="Output Tokens (500 tokens/second of audio)">
+                    <span id="durationValue" class="slider-value">1500</span>
+                </div>
+            </div>
+            <div class="setting">
+                <label for="emotion">Use tag:</label>
+                <div class="dropdown-container">
+                    <select id="emotion" name="emotion" aria-label="Emotion">
+                        <option value="normal">Normal</option>
+                        <option value="happy">Happy</option>
+                        <option value="sad">Sad</option>
+                        <option value="curious">Curious</option>
+                        <option value="slow">Slow</option>
+                        <option value="whisper">Whisper</option>
+                        <option value="crying">Crying</option>
+                        <option value="disgust">Disgust</option>
+                        <option value="angry">Angry</option>
+                    </select>
+                </div>
+            </div>
+            <!-- You can add more settings here -->
+        </div>
+    </div>
+
+    <!-- Model Card Popup -->
+    <div id="modelCard" class="model-card" role="dialog" aria-labelledby="modelCardTitle" aria-modal="true">
+        <div class="model-card-content">
+            <button class="close-button" id="closeModelCard" aria-label="Close Model Card">&times;</button>
+            <h3 id="modelCardTitle">Model Card</h3>
+            <div class="model-info">
+                <p><strong>Model Name:</strong> HTML-Speech-micro-v0.0</p>
+                <p><strong>Number of Parameters:</strong> 3.6 bn</p>
+                <p><strong>Base LLM:</strong> Llama-3 3b</p>
+                </br>
+                <p><strong>Description</strong>
+                <p>
+                    This model is an exploration into how we can guide multimodal LLMs (MM-LLMs) to generate speech
+                    tokens of a specific style.
+                    Existing SOTA TTS models (like Eleven Labs, which is not even an LLM) do not have good
+                    controllability. If I say "say in a whisper XYZ", or "say in a happy tone XYZ",
+                    models tend to ignore the style presented.
+                    This MM-LLM is an attempt to address this issue using HTML tags containing text-based style
+                    instructions to guide it.
+                    We manually collected a small dataset of a handful of emotions, which is why we limit the styles to
+                    a few basic emotions,
+                    but there is no reason why this cannot be expanded to more and competely general complex emotions or
+                    styles, and future work will address this.
+
+                </p>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create audio visualizer bars
+        const visualizer = document.getElementById('audioVisualizer');
+        const BAR_COUNT = 40;
+        const bars = [];
+
+        for (let i = 0; i < BAR_COUNT; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'visualizer-bar';
+            visualizer.appendChild(bar);
+            bars.push(bar);
+        }
+
+        let currentAudio = null;
+        const playButton = document.getElementById('playButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const userText = document.getElementById('userText');
+
+        // Get temperature, duration, and emotion elements
+        const temperatureSlider = document.getElementById('temperature');
+        const temperatureValue = document.getElementById('temperatureValue');
+
+        const durationSlider = document.getElementById('duration');
+        const durationValue = document.getElementById('durationValue');
+
+        const emotionSelect = document.getElementById('emotion');
+
+        // Update temperature display
+        temperatureSlider.addEventListener('input', () => {
+            temperatureValue.textContent = parseFloat(temperatureSlider.value).toFixed(2);
+        });
+
+        // Update duration display
+        durationSlider.addEventListener('input', () => {
+            durationValue.textContent = parseFloat(durationSlider.value).toFixed(1);
+        });
+
+        // Elements for the Demo Popup
+        const demoPopup = document.getElementById('demoPopup');
+        const demosButton = document.getElementById('demos-button');
+        const demosButtonMobile = document.getElementById('demos-button-mobile');
+        const closeDemoPopupButton = document.getElementById('closeDemoPopup');
+
+        // Open the demo popup
+        demosButton.addEventListener('click', () => {
+            demoPopup.style.display = 'flex';
+        });
+
+        demosButtonMobile.addEventListener('click', () => {
+            demoPopup.style.display = 'flex';
+        });
+
+        // Close the demo popup
+        closeDemoPopupButton.addEventListener('click', () => {
+            demoPopup.style.display = 'none';
+        });
+
+        // Close the popup when clicking outside the content
+        window.addEventListener('click', (event) => {
+            if (event.target === demoPopup) {
+                demoPopup.style.display = 'none';
+            }
+        });
+
+
+        function updateVisualizerBars(audio, bars) {
+            if (!audio.paused) {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaElementSource(audio);
+                const analyser = audioContext.createAnalyser();
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                analyser.fftSize = 64;
+
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                function renderFrame() {
+                    if (!audio.paused) {
+                        analyser.getByteFrequencyData(dataArray);
+
+                        bars.forEach((bar, index) => {
+                            let bar_strength = Math.abs((BAR_COUNT / 2) - index);
+                            const barHeight = (dataArray[bar_strength] / 256) * 80;
+                            bar.style.height = `${Math.max(barHeight, 4)}px`;
+                            bar.classList.add('active');
+                        });
+
+                        requestAnimationFrame(renderFrame);
+                    } else {
+                        bars.forEach(bar => {
+                            bar.classList.remove('active');
+                            bar.style.height = '4px';
+                        });
+                    }
+                }
+                renderFrame();
+            }
+        }
+
+        document.getElementById('textInput').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                const prompt = this.value.trim();
+                if (prompt !== "") {
+                    const select = document.getElementById('emotion');
+                    const selectedValue = select.value;
+                    console.log(selectedValue);
+                    userText.textContent = `MY PROMPT: <${selectedValue}> ${prompt} </${selectedValue}>`;
+                    document.getElementById("outputsGen").style.display = "block";
+                    document.getElementById("numTokensSpan").textContent = document.getElementById("duration").value;
+                    document.getElementById("timeSpan").textContent = Math.floor(document.getElementById("duration").value/75);
+
+
+                    this.value = "";
+                    sendPostRequest(prompt);
+                }
+            }
+        });
+
+        "https://k66bdjupomoi7f-8080.proxy.runpod.net/inference";
+        
+        function sendPostRequest(prompt) {
+            const url = "https://wuydoyc4df6uje-8080.proxy.runpod.net/inference";
+            // const url = "https://34.71.18.20:8080/inference";
+
+            document.getElementById("textInput").classList.add("shimmer");
+            const expectedLength = document.getElementById("duration").value;
+
+            console.log("Expected Length: ", expectedLength);
+
+            const payload = {
+                "prompt": prompt,
+                "max_length": parseInt(expectedLength),
+                "temperature": parseFloat(temperatureSlider.value),
+                "duration": parseFloat(durationSlider.value), // Added duration parameter
+                "emotion": emotionSelect.value // Added emotion parameter
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("textInput").classList.remove("shimmer");
+                    console.log(data);
+                    document.getElementById("outputsGen").style.display = "none";
+                    if (data.numpy_audio && data.numpy_audio.length > 0 && data.numpy_audio[0].length > 0) {
+                        const audioUrl = convertFloat32ToWav(data.numpy_audio[0][0]);
+                        setupPlayButton(audioUrl);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function setupPlayButton(audioUrl) {
+            playButton.style.display = 'block';
+
+            playButton.onclick = () => playAudio(audioUrl);
+            downloadButton.style.display = 'block';
+            downloadButton.style.marginLeft = '-25px';
+            downloadButton.href = audioUrl;
+        }
+
+        function playAudio(audioUrl) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            const audioElement = new Audio(audioUrl);
+            currentAudio = audioElement;
+            audioElement.play();
+
+            audioElement.addEventListener('play', () => {
+                updateVisualizerBars(audioElement, bars);
+            });
+
+            audioElement.addEventListener('ended', () => {
+                bars.forEach(bar => {
+                    bar.classList.remove('active');
+                    bar.style.height = '4px';
+                });
+            });
+        }
+
+        function convertFloat32ToWav(audioData) {
+            const sampleRate = 16000;
+            const numOfChannels = 1;
+            const byteRate = sampleRate * numOfChannels * 2;
+            const blockAlign = numOfChannels * 2;
+            const buffer = new ArrayBuffer(44 + audioData.length * 2);
+            const view = new DataView(buffer);
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + audioData.length * 2, true);
+            writeString(view, 8, 'WAVE');
+
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 16, true);
+
+            writeString(view, 36, 'data');
+            view.setUint32(40, audioData.length * 2, true);
+
+            let offset = 44;
+            for (let i = 0; i < audioData.length; i++, offset += 2) {
+                const s = Math.max(-1, Math.min(1, audioData[i]));
+                view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            }
+
+            return URL.createObjectURL(new Blob([view], { type: 'audio/wav' }));
+        }
+
+        // Model Card Popup Functionality
+        const openModelCardButton = document.getElementById('openModelCard');
+        const openModelCardMobileButton = document.getElementById('openModelCardMobile');
+        const modelCard = document.getElementById('modelCard');
+        const closeModelCardButton = document.getElementById('closeModelCard');
+
+        // Function to open the model card
+        openModelCardButton.addEventListener('click', () => {
+            modelCard.style.display = 'flex';
+        });
+
+        openModelCardMobileButton.addEventListener('click', () => {
+            modelCard.style.display = 'flex';
+        });
+
+        // Function to close the model card
+        closeModelCardButton.addEventListener('click', () => {
+            modelCard.style.display = 'none';
+        });
+
+        // Close the modal when clicking outside the content
+        window.addEventListener('click', (event) => {
+            if (event.target === modelCard) {
+                modelCard.style.display = 'none';
+            }
+        });
+
+        // Removed the automatic opening of the model card on page load
+        /*
+        window.addEventListener('DOMContentLoaded', () => {
+            modelCard.style.display = 'flex';
+        });
+        */
+    </script>
+</body>
+
+</html>

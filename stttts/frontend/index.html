@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Audio</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+
+        body{
+            font-family: Nunito, sans-serif;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+            width: 150px; /* Placeholder size for shimmer */
+            height: 20px; /* Placeholder height for shimmer */
+            border-radius: 15px;
+            margin: 10px 15px; /* Align shimmer with text padding */
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: #fff; color: #000; margin: 0; padding: 0; width: 100%; height: 100vh; display: flex; flex-direction: column;">
+    <h1 style="font-size: 1rem; font-weight: normal; text-align: left; width: 100%; margin: 10px 0 0 20px; color: #777;">Canopy Labs Text-Speech v0.0</h1>
+
+    <div id="messageContainer" style="flex-grow: 1; width: 100%; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; overflow-y: auto;"></div>
+
+    <div class="input-container" style="width: 100%; background-color: #fff; display: flex; justify-content: center; padding: 10px;">
+        <input type="text" class="text-input" id="textInput" placeholder="Type your text here..." style="width: 90%; padding: 15px; font-size: 1rem; border: none; border-radius: 50px; background-color: #f0f0f0; color: #000; outline: none;">
+    </div>
+
+    <script>
+        let gen_ids = [];
+        let message_counter = 0;
+
+        document.getElementById('textInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const prompt = this.value.trim();
+                if (prompt !== "") {
+                    // Clear the input field
+                    this.value = "";
+
+                    // Create and append message bubble immediately
+                    createMessageBubble(prompt);
+
+                    // Create the placeholder for the AI assistant
+                    const placeholderBubble = createPlaceholderBubble();
+
+                    // Send the POST request
+                    sendPostRequest(prompt, placeholderBubble);
+                }
+            }
+        });
+
+        function createMessageBubble(text) {
+            const messageBubble = document.createElement('div');
+            messageBubble.textContent = text;
+            messageBubble.style.cssText = "background-color: #f0f0f0; color: #000; padding: 10px 15px; border-radius: 15px; margin: 10px; max-width: 70%; align-self: flex-end; text-align: right; word-wrap: break-word;";
+            messageBubble.className = "message-bubble";
+            document.getElementById('messageContainer').appendChild(messageBubble);
+            
+            // Scroll to the bottom of the message container
+            messageBubble.scrollIntoView({ behavior: "smooth", block: "end" });
+        }
+
+        function createPlaceholderBubble() {
+            // Create container for AI response
+            const responseContainer = document.createElement('div');
+            responseContainer.style.cssText = "margin: 10px; max-width: 70%; align-self: flex-start; word-wrap: break-word;";
+
+            // Create title for AI assistant
+            const title = document.createElement('div');
+            title.textContent = "AI ASSISTANT";
+            title.style.cssText = "color: #aaa; font-size: 0.8rem; font-weight: 300; margin-bottom: 5px; padding-left: 15px;";
+            responseContainer.appendChild(title);
+
+            // Create the placeholder bubble with shimmer effect (no text)
+            const placeholderBubble = document.createElement('div');
+            placeholderBubble.className = "shimmer";
+            responseContainer.appendChild(placeholderBubble);
+
+            // Append the container to the message container
+            document.getElementById('messageContainer').appendChild(responseContainer);
+            
+            // Scroll to the bottom of the message container
+            responseContainer.scrollIntoView({ behavior: "smooth", block: "end" });
+
+            return responseContainer;
+        }
+
+        function sendPostRequest(prompt, placeholderBubble) {
+            const url = "https://yyji7wj3kwiurj-8080.proxy.runpod.net/inference";
+            message_counter += 1;
+            const payload = {
+                "prompt": prompt,
+                "max_length": 3000,
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Update gen_ids with the generated_ids from the response and append token 128262
+                if (data.generated_ids) {
+                    gen_ids = [...data.generated_ids[0], 128262];
+                }
+                // Update the placeholder with the generated text and audio
+                if (data.generated_text) {
+                    let audioUrl = null;
+                    if (data.numpy_audio && data.numpy_audio.length > 0 && data.numpy_audio[0].length > 0) {
+                    // if (false){
+                        // Convert numpy audio array to a proper WAV Blob
+                        audioUrl = convertFloat32ToWav(data.numpy_audio[0][0]);
+                    }
+                    updateResponseBubble(placeholderBubble, data.generated_text, audioUrl);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function updateResponseBubble(placeholderBubble, text, audioUrl) {
+            // Clear the placeholder bubble text
+            placeholderBubble.innerHTML = "";
+
+            // Create title for AI assistant
+            const title = document.createElement('div');
+            title.textContent = "AI ASSISTANT";
+            title.style.cssText = "color: #aaa; font-size: 0.8rem; font-weight: 300; margin-bottom: 5px; padding-left: 15px;";
+            placeholderBubble.appendChild(title);
+
+            // Create the response bubble for the text
+            const responseBubble = document.createElement('div');
+            responseBubble.textContent = text;
+            responseBubble.style.cssText = "color: #000; padding: 10px 15px; text-align: left;";
+            responseBubble.className = "response-bubble";
+            placeholderBubble.appendChild(responseBubble);
+
+            // Create audio element for the response
+            if (audioUrl) {
+                const audioElement = document.createElement('audio');
+                audioElement.controls = true;
+                audioElement.src = audioUrl;
+                audioElement.style.cssText = "margin-top: 10px; width: 100%; max-width: 400px;";
+                placeholderBubble.appendChild(audioElement);
+            }
+        }
+
+        function convertFloat32ToWav(audioData) {
+            const sampleRate = 16000;
+            const numOfChannels = 1;
+            const byteRate = sampleRate * numOfChannels * 2;
+            const blockAlign = numOfChannels * 2;
+            const buffer = new ArrayBuffer(44 + audioData.length * 2);
+            const view = new DataView(buffer);
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+
+            // RIFF chunk descriptor
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + audioData.length * 2, true);
+            writeString(view, 8, 'WAVE');
+
+            // FMT sub-chunk
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
+            view.setUint16(20, 1, true); // AudioFormat (1 for PCM)
+            view.setUint16(22, numOfChannels, true); // NumChannels
+            view.setUint32(24, sampleRate, true); // SampleRate
+            view.setUint32(28, byteRate, true); // ByteRate
+            view.setUint16(32, blockAlign, true); // BlockAlign
+            view.setUint16(34, 16, true); // BitsPerSample
+
+            // data sub-chunk
+            writeString(view, 36, 'data');
+            view.setUint32(40, audioData.length * 2, true);
+
+            // Write PCM samples
+            let offset = 44;
+            for (let i = 0; i < audioData.length; i++, offset += 2) {
+                const s = Math.max(-1, Math.min(1, audioData[i]));
+                view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            }
+
+            return URL.createObjectURL(new Blob([view], { type: 'audio/wav' }));
+        }
+    </script>
+</body>
+</html>

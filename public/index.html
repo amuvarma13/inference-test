@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Models</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: Nunito, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            color: #000;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            box-sizing: border-box;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            justify-content: center;
+            align-items: start;
+        }
+
+        .model-card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+            width: 300px;
+            height: 400px;
+            box-sizing: border-box;
+        }
+
+        .model-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 0 0 10px;
+        }
+
+        .model-date {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .model-description {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .go-to-model-button {
+            background-color: #9A30F3;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 90%;
+            align-self: center;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .go-to-model-button:hover {
+            background-color: #7B1FA2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #333;">👋 Try out our models!</h1>
+        <div class="grid-container">
+            <div class="model-card">
+                <div class="model-title">HTML-speech-micro-v0.0</div>
+                <div class="model-date">PUBLISHED: NOVEMBER 13 2024</div>
+                <div class="model-description">This is a multimodal LLM (using Llama-3b as base). It is designed to use html tags to 
+                    controllably guide the style of the generated speech. It is pretrained on a 2000 hours of audio book data, 
+                    and finetuned 3 hours of manually collected data, and would cost around $3000 to replicate.
+                </div>
+                <a href="/tts/frontend/index.html" class="go-to-model-button">Go to model</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
