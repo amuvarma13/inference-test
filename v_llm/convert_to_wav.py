@@ -1,4 +1,4 @@
-from naturalspeech3_facodec.ns3_codec import FACodecEncoder, FACodecDecoder
+from v_llm.naturalspeech3_facodec.ns3_codec import FACodecEncoder, FACodecDecoder
 from huggingface_hub import hf_hub_download
 import torch
 import librosa
