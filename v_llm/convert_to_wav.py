@@ -62,7 +62,7 @@ spk_embs = process_audio_and_get_vq_id()
 
 def process_input_ids(generated_ids):
 
-    print("generated_ids", generated_ids)
+    print("generated_ids", type(generated_ids))
 
     token_to_find = 128257
     token_to_remove = 128263
