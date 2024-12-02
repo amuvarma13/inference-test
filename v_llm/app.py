@@ -39,6 +39,7 @@ async def generate_text(prompt: str):
         return InferenceResponse(wavs=wavs.tolist())
     
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
