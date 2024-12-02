@@ -32,6 +32,7 @@ class InferenceResponse(BaseModel):
 @app.get("/generate", response_model=InferenceResponse)
 async def generate_text(prompt: str):
     try:
+        print("recieved prompt: ", prompt)
         outputs = llm.generate([prompt], sampling_params)
         token_ids = outputs[0].outputs[0].token_ids
         # content_tokens_response = extract_content_tokens(token_ids)
