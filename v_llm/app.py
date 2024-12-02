@@ -18,7 +18,7 @@ app.add_middleware(
 )
 
 # Initialize LLM and sampling parameters
-llm = LLM(model="amuvarma/3days-tagged-noreps-caps")
+llm = LLM(model="amuvarma/luna-3days-tagged-noreps")
 sampling_params = SamplingParams(
     temperature=0.8,
     top_p=0.95,
