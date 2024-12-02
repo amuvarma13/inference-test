@@ -5,6 +5,7 @@ from typing import List
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from convert_to_wav import convert_to_wav
+from extract_parts import extract_content_tokens
 # Initialize FastAPI app
 app = FastAPI()
 
@@ -33,6 +34,7 @@ async def generate_text(prompt: str):
     try:
         outputs = llm.generate([prompt], sampling_params)
         token_ids = outputs[0].outputs[0].token_ids
+        # content_tokens_response = extract_content_tokens(token_ids)
         wavs = convert_to_wav(token_ids)
         return InferenceResponse(wavs=wavs.tolist())
     
