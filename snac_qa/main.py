@@ -33,6 +33,11 @@ app.add_middleware(
 tokeniser_name = "meta-llama/Llama-3.2-3B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(tokeniser_name)
 
+number_add_tokens = 6 * 1024 + 10  # 6144 + 10 = 6154
+new_tokens = [f"<custom_token_{i}>" for i in range(0, number_add_tokens + 1)]  # 6155 tokens
+tokenizer.add_tokens(new_tokens)
+tokenizer.add_special_tokens({'additional_special_tokens': ['<|audio|>']})
+
 model_id = "amuvarma/convo-tts-tune-7contentonly"
 
 # 2. Device and dtype setup
