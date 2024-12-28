@@ -29,6 +29,19 @@ tokenizer = AutoTokenizer.from_pretrained(tokeniser_name)
 
 model_id = "amuvarma/convo-tts-tune-7contentonly"
 
+# 2. Device and dtype setup
+import torch
+device = "cpu"
+dtype = torch.float32
+if torch.cuda.is_available():
+    device = "cuda"
+    dtype = torch.bfloat16
+    print(f"Using {device} device")
+elif torch.backends.mps.is_available():
+    device = "mps"
+    dtype = torch.float16
+    print(f"Using {device} device")
+
 config = GazelleConfig(
     audio_model_id="facebook/wav2vec2-base-960h",
     text_model_id=model_id,
