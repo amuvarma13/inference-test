@@ -148,6 +148,8 @@ async def inference(prompt_data: PromptRequest):
         top_p=0.8,
         eos_token_id=128258,
         )
+    
+    print(outs)
 
 
 
