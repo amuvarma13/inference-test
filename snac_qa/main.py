@@ -16,6 +16,13 @@ from gzf import (
     GazelleProcessor,
 )
 from pydub import AudioSegment
+import torch
+
+from snac import SNAC
+import torch
+
+snac_model = SNAC.from_pretrained("hubertsiuzdak/snac_24khz")
+snac_model = snac_model.to("cuda")
 
 
 sound = AudioSegment.from_mp3("3.mp3")
@@ -196,8 +203,52 @@ async def inference_text(prompt_data: TextPromptRequest):
         eos_token_id=128258,
         )
     
-    print(outs)
-    print(tokenizer.decode(outs[0], skip_special_tokens=True))
+
+    token_to_find = 128257
+    token_to_remove = 128263
+
+    # Check if the token exists in the tensor
+    token_indices = (outs == token_to_find).nonzero(as_tuple=True)
+
+    if len(token_indices[1]) > 0:
+        last_occurrence_idx = token_indices[1][-1].item()
+        cropped_tensor = outs[:, last_occurrence_idx+1:]
+    else:
+        cropped_tensor = outs
+
+    mask = cropped_tensor != token_to_remove
+    cropped_tensor = cropped_tensor[mask].view(cropped_tensor.size(0), -1)
+
+    processed_tensor = cropped_tensor - 128266
+    original_shape = processed_tensor.shape
+    new_dim_1 = (original_shape[1] // 7) * 7
+    processed_tensor = processed_tensor[:, :new_dim_1]
+    code_list = processed_tensor[0].tolist()
+    def redistribute_codes(code_list):
+        layer_1 = []
+        layer_2 = []
+        layer_3 = []
+        for i in range((len(code_list)+1)//7):
+            layer_1.append(code_list[7*i])
+            layer_2.append(code_list[7*i+1]-4096)
+            layer_3.append(code_list[7*i+2]-(2*4096))
+            layer_3.append(code_list[7*i+3]-(3*4096))
+            layer_2.append(code_list[7*i+4]-(4*4096))
+            layer_3.append(code_list[7*i+5]-(5*4096))
+            layer_3.append(code_list[7*i+6]-(6*4096))
+
+        codes = [torch.tensor(layer_1).unsqueeze(0).to("cuda"),
+                torch.tensor(layer_2).unsqueeze(0).to("cuda"),
+                torch.tensor(layer_3).unsqueeze(0).to("cuda")]
+        audio_hat = snac_model.decode(codes)
+        return audio_hat
+
+
+    samples = redistribute_codes(code_list)
+    print("my samples are", samples)
+
+
+
 
 
 
