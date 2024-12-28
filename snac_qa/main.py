@@ -248,6 +248,17 @@ async def inference_text(prompt_data: TextPromptRequest):
     samples = redistribute_codes(code_list)
     print("my samples are", samples)
 
+    return {
+        "input_prompt": prompt,
+        "generated_text": "Generated in: " + str(total_time) + " s",
+        "inference_time": time.time() - start_time,
+        # "generated_shape": generated_ids.shape[1],
+        "max_length": max_length, 
+        "numpy_audio": samples.cpu.to_numpy().tolist(),
+        # "generated_ids": generated_ids.tolist(), 
+
+    }
+
 
 
 
