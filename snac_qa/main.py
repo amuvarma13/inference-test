@@ -7,7 +7,7 @@ import uvicorn
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
-from gzv2.gzf import (
+from gzv2 import (
     GazelleConfig,
     GazelleForConditionalGeneration,
     GazelleProcessor,
