@@ -63,6 +63,7 @@ model = GazelleForConditionalGeneration(config).to(dtype=dtype)
 special_config =  model.config
 output_dir = "amuvarma/snac-e2e-projonly-3"
 loaded_model_custom = GazelleForConditionalGeneration.from_pretrained(output_dir, config=special_config, new_vocab_size=True)
+loaded_model_custom = loaded_model_custom.to(device=device, dtype=dtype)
 
 class PromptRequest(BaseModel):
     prompt: str
