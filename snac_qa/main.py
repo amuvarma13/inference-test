@@ -6,14 +6,20 @@ from pydantic import BaseModel
 import uvicorn
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
+import transformers
+import torchaudio
+from IPython.display import Audio
 app = FastAPI()
 from gzf import (
     GazelleConfig,
     GazelleForConditionalGeneration,
     GazelleProcessor,
 )
+from pydub import AudioSegment
 
 
+sound = AudioSegment.from_mp3("3.mp3")
+sound.export("recorded_audio.wav", format="wav")
 # Add this block after creating the FastAPI app instance
 app.add_middleware(
     CORSMiddleware,
@@ -62,10 +68,61 @@ class PromptRequest(BaseModel):
 async def ping():
     return {"message": "pong"}
 
+def new_inference_collator():
+    user_phrase = "<|audio|>" #<|audio|>"
+    user_input_ids = tokenizer(user_phrase, return_tensors="pt").input_ids
+    end_of_text = torch.tensor([[128009]], dtype=torch.int64)
+    start_of_system = torch.tensor([[128256+8]], dtype=torch.int64)
+    end_of_system = torch.tensor([[128256+9]], dtype=torch.int64)
+
+    system_message = "You are an AI assistant who will answer the user's questions with short responses."
+    system_input_ids = tokenizer(system_message, return_tensors="pt").input_ids
+    system_tokens = torch.cat(
+        [start_of_system, system_input_ids, end_of_text, end_of_system],  dim=1)
+
+    # print("user_input_ids", user_input_ids.shape)
+
+    # input_ids = tokenizer(prompt, return_tensors="pt").input_ids
+
+    start_token = torch.tensor([[128259]], dtype=torch.int64)
+    end_tokens = torch.tensor([[128009, 128260, 128261]], dtype=torch.int64)
+    final_tokens = torch.tensor([[128009]], dtype=torch.int64)
+
+
+    user_tokens = torch.cat(
+        [system_tokens, start_token, user_input_ids, end_tokens], dim=1)
+
+    return user_tokens
+
 @app.post("/inference")
 async def inference(prompt_data: PromptRequest):
     prompt = prompt_data.prompt
     max_length = prompt_data.max_length
+    user_tokens = new_inference_collator()
+
+
+
+    test_audio, sr = torchaudio.load("recorded_audio.wav")
+    print(test_audio.shape, sr)
+
+    if sr != 16000:
+        print("resampling audio")
+        test_audio = torchaudio.transforms.Resample(sr, 16000)(test_audio)
+    test_audio = test_audio[0]
+    print("new", test_audio.shape)
+
+    audio_processor = transformers.Wav2Vec2Processor.from_pretrained(
+        "facebook/wav2vec2-base-960h"
+    )
+    audio_values = audio_processor(
+        audio=test_audio, return_tensors="pt", sampling_rate=16000
+    ).input_values
+
+    myinputs= {
+        "audio_values": audio_values.to(loaded_model_custom.device).to(loaded_model_custom.dtype),
+        "input_ids": user_tokens.to(loaded_model_custom.device),
+        # "input_ids": tokenizer("Okay, so what would be a healthier breakfast option then? Can you tell me?", return_tensors="pt").input_ids.to("cuda")
+    }
 
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids
 
@@ -83,18 +140,14 @@ async def inference(prompt_data: PromptRequest):
     start_time = time.time()
     
 
-    generated_ids = model.generate(
-        input_ids=input_ids,
-        attention_mask=attention_mask,
-        max_length=2500,
-        num_return_sequences=1,
-        do_sample=True,
-        temperature=0.2,
-        top_k=50,
-        # top_p=0.95,
-        repetition_penalty=1.05,
-        eos_token_id=stop_token,
-    )
+    outs = loaded_model_custom.generate(
+        **myinputs,
+        max_new_tokens=1000,
+        temperature=0.3,
+        repetition_penalty=1.2,
+        top_p=0.8,
+        eos_token_id=128258,
+        )
 
 
 
