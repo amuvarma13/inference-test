@@ -67,13 +67,12 @@ document.getElementById('textInput').addEventListener('keydown', function (event
     if (event.key === 'Enter') {
         const prompt = this.value.trim();
         if (prompt !== "") {
-            const select = document.getElementById('emotion');
-            const selectedValue = select.value;
-            console.log(selectedValue);
-            userText.textContent = `MY PROMPT: <${selectedValue}> ${prompt} </${selectedValue}>`;
-            document.getElementById("outputsGen").style.display = "block";
-            document.getElementById("numTokensSpan").textContent = document.getElementById("duration").value;
-            document.getElementById("timeSpan").textContent = Math.floor(document.getElementById("duration").value / 75);
+
+
+            // userText.textContent = `MY PROMPT: <${selectedValue}> ${prompt} </${selectedValue}>`;
+            // document.getElementById("outputsGen").style.display = "block";
+            // document.getElementById("numTokensSpan").textContent = document.getElementById("duration").value;
+            // document.getElementById("timeSpan").textContent = Math.floor(document.getElementById("duration").value / 75);
 
 
             this.value = "";
@@ -89,9 +88,7 @@ function sendPostRequest(prompt) {
     // const url = "https://34.71.18.20:8080/inference";
 
     document.getElementById("textInput").classList.add("shimmer");
-    const expectedLength = document.getElementById("duration").value;
 
-    console.log("Expected Length: ", expectedLength);
 
     const payload = {
         "prompt": "Hello world, what do you think about AI?",
