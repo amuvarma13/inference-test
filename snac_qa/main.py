@@ -68,7 +68,8 @@ loaded_model_custom = loaded_model_custom.to(device=device, dtype=dtype)
 class PromptRequest(BaseModel):
     prompt: str
     max_length: int = 500  # Default value of 500, can be overridden in the request
-    prepend_tokens: Optional[List[int]] = None  # Optional list of tokens to prepend
+    prepend_tokens: Optional[List[int]] = None  # Optional list of tokens to prepend, 
+    samples_list: List[float]
 
 @app.get("/ping")
 async def ping():
@@ -104,24 +105,15 @@ def new_inference_collator():
 async def inference(prompt_data: PromptRequest):
     prompt = prompt_data.prompt
     max_length = prompt_data.max_length
+    samples_list = prompt_data.samples_list
     user_tokens = new_inference_collator()
 
-
-
-    test_audio, sr = torchaudio.load("recorded_audio.wav")
-    print(test_audio.shape, sr)
-
-    if sr != 16000:
-        print("resampling audio")
-        test_audio = torchaudio.transforms.Resample(sr, 16000)(test_audio)
-    test_audio = test_audio[0]
-    print("new", test_audio.shape)
 
     audio_processor = transformers.Wav2Vec2Processor.from_pretrained(
         "facebook/wav2vec2-base-960h"
     )
     audio_values = audio_processor(
-        audio=test_audio, return_tensors="pt", sampling_rate=16000
+        audio=samples_list, return_tensors="pt", sampling_rate=16000
     ).input_values
 
     myinputs= {
@@ -148,7 +140,7 @@ async def inference(prompt_data: PromptRequest):
 
     outs = loaded_model_custom.generate(
         **myinputs,
-        max_new_tokens=1000,
+        max_new_tokens=100,
         temperature=0.3,
         repetition_penalty=1.2,
         top_p=0.8,
@@ -156,6 +148,7 @@ async def inference(prompt_data: PromptRequest):
         )
     
     print(outs)
+    print(tokenizer.decode(outs[0], skip_special_tokens=True))
 
 
 
