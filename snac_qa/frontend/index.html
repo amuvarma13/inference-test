@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=0.95> -->
+
+    <title>Text to Audio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
+    <!-- link to style.css -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    
+    <!-- Show Model Card Button -->
+    <button id="openModelCard" class="show-model-card-button">Show Model Card</button>
+
+    <div class="banner">
+        This is an end-to-end multimodal LLM. It accepts text and speech in, and generates text and speech out.
+    </div>
+
+    <div class="outputs-gen" id="outputsGen"> 
+        You are generating <span id="numTokensSpan"></span> tokens
+        which will take around <span id="timeSpan"></span> seconds to generate.
+    </div>
+
+
+
+
+    <h1
+        style="font-size: 1rem; font-weight: normal; text-align: left; width: 100%; margin: 10px 0 0 20px; color: #777;">
+        QA-End2End-Speech-v0.0</h1>
+
+        <button id="openModelCardMobile" class="show-model-card-button-mobile">Show Model Card</button>
+
+
+    <div class="main-container">
+        <div class="recorder">
+            <button id="recordButton">
+                <svg id="micIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                    <line x1="12" y1="19" x2="12" y2="22"/>
+                </svg>
+                <svg id="stopIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                    <rect x="6" y="6" width="12" height="12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="separator"> OR
+        </div>
+        <input type="text" class="text-input" id="textInput"
+        placeholder="Type your question here and press enter">
+        <div class="tb-sep"> </div>
+        <div class="audio-visualizer-container">
+            <div class="audio-visualizer" id="audioVisualizer">
+                <!-- Bars will be added by JavaScript -->
+            </div>
+            <button id="playButton" class="play-button" style="display: none;">▶</button>
+
+        </div>
+        <div class="download-holder">
+            <a id="downloadButton" style="display: none;" download="generated_audio.wav">
+                <button class="link"> Download Audio Sample</button>
+            </a>
+        </div>
+
+
+        <div id="userText" class="user-text"></div>
+  
+    </div>
+
+    <!-- Model Card Popup -->
+    <div id="modelCard" class="model-card" role="dialog" aria-labelledby="modelCardTitle" aria-modal="true">
+        <div class="model-card-content">
+            <button class="close-button" id="closeModelCard" aria-label="Close Model Card">&times;</button>
+            <h3 id="modelCardTitle">Model Card</h3>
+            <div class="model-info">
+                <p><strong>Model Name:</strong> HTML-Speech-micro-v0.0</p>
+                <p><strong>Number of Parameters:</strong> 3.6 bn</p>
+                <p><strong>Base LLM:</strong> Llama-3 3b</p>
+                </br>
+                <p><strong>Description</strong>
+                <p>
+                    This model is an exploration into how we can guide multimodal LLMs (MM-LLMs) to generate speech
+                    tokens of a specific style.
+                    Existing SOTA TTS models (like Eleven Labs, which is not even an LLM) do not have good
+                    controllability. If I say "say in a whisper XYZ", or "say in a happy tone XYZ",
+                    models tend to ignore the style presented.
+                    This MM-LLM is an attempt to address this issue using HTML tags containing text-based style
+                    instructions to guide it.
+                    We manually collected a small dataset of a handful of emotions, which is why we limit the styles to
+                    a few basic emotions,
+                    but there is no reason why this cannot be expanded to more and competely general complex emotions or
+                    styles, and future work will address this.
+
+                </p>
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>

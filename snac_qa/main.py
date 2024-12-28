@@ -71,6 +71,12 @@ class PromptRequest(BaseModel):
     prepend_tokens: Optional[List[int]] = None  # Optional list of tokens to prepend, 
     samples_list: List[float]
 
+class TextPromptRequest(BaseModel):
+    prompt: str
+    max_length: int = 500  # Default value of 500, can be overridden in the request
+    prepend_tokens: Optional[List[int]] = None  # Optional list of tokens to prepend, 
+
+
 @app.get("/ping")
 async def ping():
     return {"message": "pong"}
@@ -119,6 +125,49 @@ async def inference(prompt_data: PromptRequest):
     myinputs= {
         "audio_values": audio_values.to(loaded_model_custom.device).to(loaded_model_custom.dtype),
         "input_ids": user_tokens.to(loaded_model_custom.device),
+        # "input_ids": tokenizer("Okay, so what would be a healthier breakfast option then? Can you tell me?", return_tensors="pt").input_ids.to("cuda")
+    }
+
+    input_ids = tokenizer(prompt, return_tensors="pt").input_ids
+
+    start_token = torch.tensor([[128259]], dtype=torch.int64)
+    end_tokens = torch.tensor([[128009, 128260, 128261]], dtype=torch.int64)
+
+    modified_input_ids = torch.cat([start_token, input_ids, end_tokens], dim=1)
+    input_ids = modified_input_ids
+    attention_mask = torch.ones_like(input_ids)
+
+    input_ids = input_ids.to("cuda")
+    attention_mask = attention_mask.to("cuda")
+    stop_token = 128258
+
+    start_time = time.time()
+    
+
+    outs = loaded_model_custom.generate(
+        **myinputs,
+        max_new_tokens=100,
+        temperature=0.3,
+        repetition_penalty=1.2,
+        top_p=0.8,
+        eos_token_id=128258,
+        )
+    
+    print(outs)
+    print(tokenizer.decode(outs[0], skip_special_tokens=True))
+
+
+@app.post("/inference-text")
+async def inference_text(prompt_data: TextPromptRequest):
+    prompt = prompt_data.prompt
+    max_length = prompt_data.max_length
+
+    user_tokens = new_inference_collator()
+
+
+    myinputs= {
+        # "audio_values": audio_values.to(loaded_model_custom.device).to(loaded_model_custom.dtype),
+        "input_ids": "What is a healthy breakfast option?",
         # "input_ids": tokenizer("Okay, so what would be a healthier breakfast option then? Can you tell me?", return_tensors="pt").input_ids.to("cuda")
     }
 

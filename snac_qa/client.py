@@ -3,11 +3,11 @@ import librosa
 import soundfile as sf
 
 # Read the audio file
-data, samplerate = sf.read("recorded_audio.wav")
+data, samplerate = sf.read("recorded_audio_16k.wav")
 
 # data is a NumPy array. If you need a regular Python list of samples:
 samples_list = data.tolist()
-print(samples_list)
+
 
 def main():
     # Replace with your actual inference endpoint
@@ -27,5 +27,5 @@ def main():
     print("Status Code:", response.status_code)
     print("Response:", response.text)
 
-# if __name__ == "__main__":
-    # main()
+if __name__ == "__main__":
+    main()
