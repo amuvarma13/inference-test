@@ -203,7 +203,8 @@ async def inference_text(prompt_data: TextPromptRequest):
         eos_token_id=128258,
         )
     
-
+    print(outs)
+    print(tokenizer.decode(outs[0], skip_special_tokens=True))
     token_to_find = 128257
     token_to_remove = 128263
 
