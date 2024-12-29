@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import transformers
 import torchaudio
 from IPython.display import Audio
+from extract_tokens_after_value import extract_tokens_after_value
 app = FastAPI()
 from gzf import (
     GazelleConfig,
@@ -164,6 +165,7 @@ async def inference(prompt_data: PromptRequest):
     print(tokenizer.decode(outs[0], skip_special_tokens=True))
 
 
+
 @app.post("/inference-text")
 async def inference_text(prompt_data: TextPromptRequest):
     prompt = prompt_data.prompt
@@ -202,9 +204,10 @@ async def inference_text(prompt_data: TextPromptRequest):
       top_p=0.9,
       eos_token_id=128258,
     )
+
+    text_tokens = extract_tokens_after_value(outs[0], 128261, 128257)
+    text_response = tokenizer.decode(text_tokens)
     
-    print(outs)
-    print(tokenizer.decode(outs[0], skip_special_tokens=True))
     token_to_find = 128257
     token_to_remove = 128263
 
@@ -252,6 +255,7 @@ async def inference_text(prompt_data: TextPromptRequest):
         "input_prompt": prompt,
         "inference_time": time.time() - start_time,
         # "generated_shape": generated_ids.shape[1],
+        "text_response": text_response,
         "max_length": max_length, 
         "numpy_audio": samples.detach().cpu().numpy().tolist(),
         # "generated_ids": generated_ids.tolist(), 
