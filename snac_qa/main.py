@@ -149,7 +149,7 @@ async def inference(prompt_data: PromptRequest):
         # "input_ids": tokenizer("Okay, so what would be a healthier breakfast option then? Can you tell me?", return_tensors="pt").input_ids.to("cuda")
     }
     stop_token = 128258
-
+  
     start_time = time.time()
     
 
