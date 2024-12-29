@@ -94,7 +94,10 @@ function sendPostRequest(prompt) {
         "prompt": "Hello world, what do you think about AI?",
         "max_length": 150,
     };
+    document.getElementById("output").style.display = "none";
 
+    document.getElementById("outputSub").style.display = "none";
+    document.getElementById("loaderContainer").style.display = "flex";
     fetch(url, {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
@@ -102,12 +105,16 @@ function sendPostRequest(prompt) {
     })
         .then(response => response.json())
         .then(data => {
+            document.getElementById("output").style.display = "block";
+            document.getElementById("loaderContainer").style.display = "none";
+
             document.getElementById("textInput").classList.remove("shimmer");
             console.log(data);
             document.getElementById("outputsGen").style.display = "none";
             if (data.numpy_audio && data.numpy_audio.length > 0 && data.numpy_audio[0].length > 0) {
                 const audioUrl = convertFloat32ToWav(data.numpy_audio[0][0]);
                 setupPlayButton(audioUrl);
+                document.getElementById("textResponse").textContent = data.text_response;
             }
         })
         .catch(error => {
@@ -119,9 +126,6 @@ function setupPlayButton(audioUrl) {
     playButton.style.display = 'block';
 
     playButton.onclick = () => playAudio(audioUrl);
-    downloadButton.style.display = 'block';
-    downloadButton.style.marginLeft = '-25px';
-    downloadButton.href = audioUrl;
 }
 
 function playAudio(audioUrl) {

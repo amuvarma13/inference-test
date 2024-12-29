@@ -606,3 +606,85 @@ audio::-webkit-media-controls-enclosure {
     font-weight: 700;
     font-size: 0.8em;
 }
+
+#output{
+    display:none
+}
+
+.instruction-banner{
+    background-color: #fafafa;
+    padding: 15px;
+    border: solid 1px #eee;
+}
+
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    flex-direction: column;
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 5px solid #9A30F3;
+    position: relative;
+    animation: spin 1s linear infinite;
+}
+
+.loader::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background-color: #9A30F3;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.loading-text {
+    position: absolute;
+    top: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: Arial, sans-serif;
+    color: #9A30F3;
+    font-size: 14px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.dots {
+    display: inline-block;
+    width: 20px;
+    text-align: left;
+}
+
+@keyframes dots {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+}
+
+.dots::after {
+    content: '';
+    animation: dots 1.5s infinite;
+}
+
+.loading-banner{
+    margin-top: 15px;
+    color: #aaa;
+}
+
+.loader-container{
+    display: none;
+}

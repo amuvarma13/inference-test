@@ -206,6 +206,7 @@ async def inference_text(prompt_data: TextPromptRequest):
     )
 
     text_tokens = extract_tokens_after_value(outs[0], 128261, 128257)
+    text_tokens = text_tokens[0][1:-1]
     text_response = tokenizer.decode(text_tokens)
     
     token_to_find = 128257

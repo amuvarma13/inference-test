@@ -18,7 +18,7 @@
 
 <body>
 
-    
+
     <!-- Show Model Card Button -->
     <button id="openModelCard" class="show-model-card-button">Show Model Card</button>
 
@@ -26,7 +26,7 @@
         This is an end-to-end multimodal LLM. It accepts text and speech in, and generates text and speech out.
     </div>
 
-    <div class="outputs-gen" id="outputsGen"> 
+    <div class="outputs-gen" id="outputsGen">
         You are generating <span id="numTokensSpan"></span> tokens
         which will take around <span id="timeSpan"></span> seconds to generate.
     </div>
@@ -38,64 +38,67 @@
         style="font-size: 1rem; font-weight: normal; text-align: left; width: 100%; margin: 10px 0 0 20px; color: #777;">
         End2End-Speech-v0.0-QA</h1>
 
-        <button id="openModelCardMobile" class="show-model-card-button-mobile">Show Model Card</button>
+    <button id="openModelCardMobile" class="show-model-card-button-mobile">Show Model Card</button>
 
 
     <div class="main-container">
         <div class="recorder">
             <button id="recordButton" class="actionButton">
-                <svg id="micIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                    <line x1="12" y1="19" x2="12" y2="22"/>
+                <svg id="micIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="22" />
                 </svg>
-                <svg id="stopIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
-                    <rect x="6" y="6" width="12" height="12"/>
+                <svg id="stopIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" style="display: none;">
+                    <rect x="6" y="6" width="12" height="12" />
                 </svg>
             </button>
         </div>
         <div class="separator"> OR
         </div>
-        <input type="text" class="text-input" id="textInput"
-        placeholder="Type your question here and press enter">
+        <input type="text" class="text-input" id="textInput" placeholder="Type your question here and press enter">
         <div class="tb-sep"> </div>
-        <div class="audio-visualizer-container">
-            <div class="audio-visualizer" id="audioVisualizer">
-                <!-- Bars will be added by JavaScript -->
+
+        <div id="output" class="output">
+            <div class="audio-visualizer-container">
+                <div class="audio-visualizer" id="audioVisualizer">
+                    <!-- Bars will be added by JavaScript -->
+                </div>
+                <button id="playButton" class="actionButton">
+                    <svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polygon points="5 3 19 12 5 21" />
+                    </svg>
+                    <svg id="pauseIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" style="display: none;">
+                        <rect x="6" y="6" width="4" height="12" />
+                        <rect x="14" y="6" width="4" height="12" />
+                    </svg>
+                </button>
+
             </div>
-            <button id="playButton" class="actionButton">
-                <svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="5 3 19 12 5 21" />
-                </svg>
-                <svg id="pauseIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
-                    <rect x="6" y="6" width="4" height="12" />
-                    <rect x="14" y="6" width="4" height="12" />
-                </svg>
-            </button>
-            <button id="downloadButton" class="actionButton">
-                <svg id="downloadIcon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                <svg id="checkIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
-                    <polyline points="20 6 9 17 4 12"/>
-                </svg>
-            </button>
+
+            <div class="text-shown">
+                <span class="text-response"> TEXT RESPONSE: </span>
+                <span id="textResponse"></span>
+            </div>
+        </div>
+        <div id="outputSub"> 
+            <div class="instruction-banner"> Either enter text or click on the microphone and speak to the model. The generated response will load here.</div>
+        </div>
+        <div class="loader-container" id="loaderContainer">
+            <div class="loader">
+                <div class="loading-text"></div>
+            </div>
+            <div class="loading-banner"> 
+                Wait up to a minute ...
+            </div>
 
         </div>
 
-        <div class="text-shown"> 
-            <span class="text-response"> TEXT RESPONSE: </span>
-            A healthier world for everyone is possible.
-            Let's work together to make it happen.
-        Together, we can create a future where health and well-being are accessible to all.
-        Join us in our mission to promote a healthier, happier world.
-        </div>
 
-
-        <div id="userText" class="user-text"></div>
-  
     </div>
 
     <!-- Model Card Popup -->
@@ -110,30 +113,39 @@
                 </br>
                 <p><strong>Description</strong>
                 <p>
-                    This model is an a first version of a multimodal speech LLM. It accepts text and speech in, and produces text and speech out.
-                    We have started with Llama 3b as the LLM backbone and modified its architecture and trained it on speech and text data to create multimodal capabilities.
-                    At the time of creation (end of November), this model is very competitive with other OS multimodal speech models, especially given its size.
-                    
-                    
+                    This model is an a first version of a multimodal speech LLM. It accepts text and speech in, and
+                    produces text and speech out.
+                    We have started with Llama 3b as the LLM backbone and modified its architecture and trained it on
+                    speech and text data to create multimodal capabilities.
+                    At the time of creation (end of November), this model is very competitive with other OS multimodal
+                    speech models, especially given its size.
+
+
 
                 </p>
-                <br/>
+                <br />
                 <p><strong>Strengths</strong>
-                    <p>Its strengths are clear end-to-end speech question answering, while maintaining a high level of fluency and coherence.
-                    </p>
+                <p>Its strengths are clear end-to-end speech question answering, while maintaining a high level of
+                    fluency and coherence.
                 </p>
-                <br/>
+                </p>
+                <br />
                 <p><strong>Weaknesses</strong>
-                    <p>The main weakness we identify are its emotional expressiveness and intelligence. This model is not as emotive as we would like as, at points, it is finetuned on synthetically generated speech data rather than human speech data. 
-                        This model is not that intelligent largely because the base LLM is very small.
-                    </p>
+                <p>The main weakness we identify are its emotional expressiveness and intelligence. This model is not as
+                    emotive as we would like as, at points, it is finetuned on synthetically generated speech data
+                    rather than human speech data.
+                    This model is not that intelligent largely because the base LLM is very small.
                 </p>
-                <br/>
+                </p>
+                <br />
                 <p><strong> Next Steps for This Model</strong>
-                    <p>In work we have done since this model was created we have created speech LLMs with very high expressiveness and basically perfect voice cloning. This means future models 
-                        can sound like anyone and express any emotion. We will also finetune future models for conversations rather than just QA.
-                        In my (Amu's) opinion, we are on a good trajectory to be very far ahead of open source SOTA and to catch and surpass closed source SOTA in the not  too distant future.
-                    </p>
+                <p>In work we have done since this model was created we have created speech LLMs with very high
+                    expressiveness and basically perfect voice cloning. This means future models
+                    can sound like anyone and express any emotion. We will also finetune future models for conversations
+                    rather than just QA.
+                    In my (Amu's) opinion, we are on a good trajectory to be very far ahead of open source SOTA and to
+                    catch and surpass closed source SOTA in the not too distant future.
+                </p>
                 </p>
             </div>
         </div>
