@@ -250,7 +250,6 @@ async def inference_text(prompt_data: TextPromptRequest):
 
     return {
         "input_prompt": prompt,
-        "generated_text": "Generated in: " + str(total_time) + " s",
         "inference_time": time.time() - start_time,
         # "generated_shape": generated_ids.shape[1],
         "max_length": max_length, 
