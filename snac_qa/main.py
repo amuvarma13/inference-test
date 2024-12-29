@@ -74,7 +74,7 @@ loaded_model_custom = GazelleForConditionalGeneration.from_pretrained(output_dir
 loaded_model_custom = loaded_model_custom.to(device=device, dtype=dtype)
 
 class PromptRequest(BaseModel):
-    audio: list
+    audio: Optional[List[float]] = None
     max_length: int = 500  # Default value of 500, can be overridden in the request
     prepend_tokens: Optional[List[int]] = None  # Optional list of tokens to prepend, 
     samples_list: List[float]
@@ -120,6 +120,9 @@ async def inference(prompt_data: PromptRequest):
     max_length = prompt_data.max_length
     samples_list = prompt_data.samples_list
     user_tokens = new_inference_collator()
+
+    print(samples_list)
+    
 
 
     audio_processor = transformers.Wav2Vec2Processor.from_pretrained(
