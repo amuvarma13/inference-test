@@ -147,7 +147,7 @@ function playAudio(audioUrl) {
 }
 
 function convertFloat32ToWav(audioData) {
-    const sampleRate = 16000;
+    const sampleRate = 24000;
     const numOfChannels = 1;
     const byteRate = sampleRate * numOfChannels * 2;
     const blockAlign = numOfChannels * 2;
