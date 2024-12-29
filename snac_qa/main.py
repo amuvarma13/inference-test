@@ -135,8 +135,6 @@ async def inference(prompt_data: PromptRequest):
         # "input_ids": tokenizer("Okay, so what would be a healthier breakfast option then? Can you tell me?", return_tensors="pt").input_ids.to("cuda")
     }
 
-    input_ids = tokenizer(prompt, return_tensors="pt").input_ids
-
     start_token = torch.tensor([[128259]], dtype=torch.int64)
     end_tokens = torch.tensor([[128009, 128260, 128261]], dtype=torch.int64)
 
