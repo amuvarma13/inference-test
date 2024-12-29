@@ -74,8 +74,8 @@ document.getElementById('textInput').addEventListener('keydown', function (event
             // document.getElementById("numTokensSpan").textContent = document.getElementById("duration").value;
             // document.getElementById("timeSpan").textContent = Math.floor(document.getElementById("duration").value / 75);
 
-
-            this.value = "";
+// 
+            // this.value = "";
             sendPostRequest(prompt);
         }
     }
@@ -85,13 +85,50 @@ document.getElementById('textInput').addEventListener('keydown', function (event
 
 function sendPostRequest(prompt) {
     const url = "https://mb2u57saut1wll-8080.proxy.runpod.net/inference-text";
-    // const url = "https://34.71.18.20:8080/inference";
 
     document.getElementById("textInput").classList.add("shimmer");
 
 
     const payload = {
         "prompt": prompt,
+        "max_length": 150,
+    };
+    document.getElementById("output").style.display = "none";
+
+    document.getElementById("outputSub").style.display = "none";
+    document.getElementById("loaderContainer").style.display = "flex";
+    fetch(url, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("output").style.display = "block";
+            document.getElementById("loaderContainer").style.display = "none";
+
+            document.getElementById("textInput").classList.remove("shimmer");
+            console.log(data);
+            document.getElementById("outputsGen").style.display = "none";
+            if (data.numpy_audio && data.numpy_audio.length > 0 && data.numpy_audio[0].length > 0) {
+                const audioUrl = convertFloat32ToWav(data.numpy_audio[0][0]);
+                setupPlayButton(audioUrl);
+                document.getElementById("textResponse").textContent = data.text_response;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+function sendAudioPostRequest(sample_list) {
+    const url = "https://mb2u57saut1wll-8080.proxy.runpod.net/inference";
+
+    document.getElementById("textInput").classList.add("shimmer");
+
+
+    const payload = {
+        "sample_list": sample_list,
         "max_length": 150,
     };
     document.getElementById("output").style.display = "none";
@@ -270,6 +307,7 @@ async function startRecording() {
             const audioUrl = URL.createObjectURL(audioBlob);
 
             // Print the total length of collected waveform data
+            sendAudioPostRequest(waveformData);
             console.log('Total waveform samples collected:', waveformData.length);
 
             // Clean up
@@ -315,5 +353,4 @@ function updateUI(recording) {
     recordButton.classList.toggle('recording', recording);
     micIcon.style.display = recording ? 'none' : 'block';
     stopIcon.style.display = recording ? 'block' : 'none';
-    status.textContent = recording ? 'Recording... Click to stop' : 'Click to start recording';
 }

@@ -74,7 +74,7 @@ loaded_model_custom = GazelleForConditionalGeneration.from_pretrained(output_dir
 loaded_model_custom = loaded_model_custom.to(device=device, dtype=dtype)
 
 class PromptRequest(BaseModel):
-    prompt: str
+    audio: list
     max_length: int = 500  # Default value of 500, can be overridden in the request
     prepend_tokens: Optional[List[int]] = None  # Optional list of tokens to prepend, 
     samples_list: List[float]
@@ -117,7 +117,6 @@ def new_inference_collator():
 
 @app.post("/inference")
 async def inference(prompt_data: PromptRequest):
-    prompt = prompt_data.prompt
     max_length = prompt_data.max_length
     samples_list = prompt_data.samples_list
     user_tokens = new_inference_collator()
