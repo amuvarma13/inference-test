@@ -132,11 +132,7 @@ async def inference(prompt_data: PromptRequest):
         audio=samples_list, return_tensors="pt", sampling_rate=16000
     ).input_values
 
-    myinputs= {
-        "audio_values": audio_values.to(loaded_model_custom.device).to(loaded_model_custom.dtype),
-        "input_ids": user_tokens.to(loaded_model_custom.device),
-        # "input_ids": tokenizer("Okay, so what would be a healthier breakfast option then? Can you tell me?", return_tensors="pt").input_ids.to("cuda")
-    }
+
 
     start_token = torch.tensor([[128259]], dtype=torch.int64)
     end_tokens = torch.tensor([[128009, 128260, 128261]], dtype=torch.int64)
@@ -145,8 +141,13 @@ async def inference(prompt_data: PromptRequest):
     input_ids = modified_input_ids
     attention_mask = torch.ones_like(input_ids)
 
-    input_ids = input_ids.to("cuda")
-    attention_mask = attention_mask.to("cuda")
+    input_ids = input_ids
+    attention_mask = attention_mask
+    myinputs= {
+        "audio_values": audio_values.to(loaded_model_custom.device).to(loaded_model_custom.dtype),
+        "input_ids": user_tokens.to(loaded_model_custom.device),
+        # "input_ids": tokenizer("Okay, so what would be a healthier breakfast option then? Can you tell me?", return_tensors="pt").input_ids.to("cuda")
+    }
     stop_token = 128258
 
     start_time = time.time()

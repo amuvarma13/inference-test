@@ -128,7 +128,7 @@ function sendAudioPostRequest(sample_list) {
 
 
     const payload = {
-        "sample_list": sample_list,
+        "samples_list": sample_list,
         "max_length": 150,
     };
     document.getElementById("output").style.display = "none";
