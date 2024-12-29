@@ -91,7 +91,7 @@ function sendPostRequest(prompt) {
 
 
     const payload = {
-        "prompt": "Hello world, what do you think about AI?",
+        "prompt": prompt,
         "max_length": 150,
     };
     document.getElementById("output").style.display = "none";
