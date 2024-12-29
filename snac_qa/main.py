@@ -177,7 +177,7 @@ async def inference_text(prompt_data: TextPromptRequest):
     myinputs= {
         # "audio_values": audio_values.to(loaded_model_custom.device).to(loaded_model_custom.dtype),
         # "input_ids": "What is a healthy breakfast option?",
-        "input_ids": tokenizer("Okay, so what would be a healthier breakfast option then? Can you tell me?", return_tensors="pt").input_ids.to("cuda")
+        "input_ids": tokenizer(prompt, return_tensors="pt").input_ids.to("cuda")
     }
 
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids
