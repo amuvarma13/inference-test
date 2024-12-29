@@ -127,7 +127,7 @@ async def inference(prompt_data: PromptRequest):
         "facebook/wav2vec2-base-960h"
     )
     audio_values = audio_processor(
-        audio=samples_list, return_tensors="pt", sampling_rate=16000
+        audio=samples_list, return_tensors="pt", sampling_rate=44100
     ).input_values
 
 
