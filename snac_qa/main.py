@@ -120,8 +120,6 @@ async def inference(prompt_data: PromptRequest):
     max_length = prompt_data.max_length
     samples_list = prompt_data.samples_list
     user_tokens = new_inference_collator()
-
-    print(samples_list)
     
 
 
@@ -137,12 +135,7 @@ async def inference(prompt_data: PromptRequest):
     start_token = torch.tensor([[128259]], dtype=torch.int64)
     end_tokens = torch.tensor([[128009, 128260, 128261]], dtype=torch.int64)
 
-    modified_input_ids = torch.cat([start_token, input_ids, end_tokens], dim=1)
-    input_ids = modified_input_ids
-    attention_mask = torch.ones_like(input_ids)
 
-    input_ids = modified_input_ids
-    attention_mask = attention_mask
     myinputs= {
         "audio_values": audio_values.to(loaded_model_custom.device).to(loaded_model_custom.dtype),
         "input_ids": user_tokens.to(loaded_model_custom.device),
