@@ -253,7 +253,7 @@ async def inference_text(prompt_data: TextPromptRequest):
         "inference_time": time.time() - start_time,
         # "generated_shape": generated_ids.shape[1],
         "max_length": max_length, 
-        "numpy_audio": samples.cpu.to_numpy().tolist(),
+        "numpy_audio": samples.cpu.numpy().tolist(),
         # "generated_ids": generated_ids.tolist(), 
 
     }
