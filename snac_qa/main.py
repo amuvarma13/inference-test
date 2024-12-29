@@ -141,7 +141,7 @@ async def inference(prompt_data: PromptRequest):
     input_ids = modified_input_ids
     attention_mask = torch.ones_like(input_ids)
 
-    input_ids = input_ids
+    input_ids = modified_input_ids
     attention_mask = attention_mask
     myinputs= {
         "audio_values": audio_values.to(loaded_model_custom.device).to(loaded_model_custom.dtype),
