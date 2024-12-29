@@ -84,7 +84,7 @@ document.getElementById('textInput').addEventListener('keydown', function (event
 "https://k66bdjupomoi7f-8080.proxy.runpod.net/inference";
 
 function sendPostRequest(prompt) {
-    const url = "https://l05w722d1e25uv-8080.proxy.runpod.net/inference-text";
+    const url = "https://mb2u57saut1wll-8080.proxy.runpod.net/inference-text";
     // const url = "https://34.71.18.20:8080/inference";
 
     document.getElementById("textInput").classList.add("shimmer");

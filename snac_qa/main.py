@@ -195,13 +195,13 @@ async def inference_text(prompt_data: TextPromptRequest):
     
 
     outs = loaded_model_custom.generate(
-        **myinputs,
-        max_new_tokens=2000,
-        temperature=0.3,
-        repetition_penalty=1.2,
-        top_p=0.8,
-        eos_token_id=128258,
-        )
+      **myinputs,
+      max_new_tokens=500,
+      temperature=0.7,
+      repetition_penalty=1.1,
+      top_p=0.9,
+      eos_token_id=128258,
+    )
     
     print(outs)
     print(tokenizer.decode(outs[0], skip_special_tokens=True))
