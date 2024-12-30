@@ -154,10 +154,12 @@ async def inference(prompt_data: PromptRequest):
     max_length = prompt_data.max_length
     samples_list = prompt_data.samples_list
     user_tokens = new_inference_collator()
+
+    save_wav_file(samples_list, 48000, "my_recorded_audio.wav")
     
 
 
-    test_audio, sr = torchaudio.load("recorded_audio.wav")
+    test_audio, sr = torchaudio.load("my_recorded_audio.wav")
     print(test_audio.shape, sr)
 
     if sr != 16000:
