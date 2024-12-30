@@ -135,6 +135,19 @@ def resample_to_16k(samples_list, original_sample_rate=48000):
 
     return resampled_waveform
 
+import wave
+import struct
+
+def save_wav_file(samples_list, sample_rate, file_path):
+    with wave.open(file_path, 'wb') as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(sample_rate)
+        for s in samples_list:
+            x = max(min(s, 1.0), -1.0)
+            x = int(x * 32767)
+            wf.writeframesraw(struct.pack('<h', x))
+
 
 @app.post("/inference")
 async def inference(prompt_data: PromptRequest):
@@ -148,6 +161,8 @@ async def inference(prompt_data: PromptRequest):
         "facebook/wav2vec2-base-960h"
     )
     resampled_waveform = resample_to_16k(samples_list, original_sample_rate=44100)
+
+    save_wav_file(samples_list, 44100, "my_recorded_audio.wav")
 
     audio_values = audio_processor(
         audio=resampled_waveform, return_tensors="pt", sampling_rate=16000
