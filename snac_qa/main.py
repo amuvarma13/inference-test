@@ -157,16 +157,20 @@ async def inference(prompt_data: PromptRequest):
     
 
 
+    test_audio, sr = torchaudio.load("recorded_audio.wav")
+    print(test_audio.shape, sr)
+
+    if sr != 16000:
+        print("resampling audio")
+        test_audio = torchaudio.transforms.Resample(sr, 16000)(test_audio)
+    test_audio = test_audio[0]
+    print("new", test_audio.shape)
+
     audio_processor = transformers.Wav2Vec2Processor.from_pretrained(
         "facebook/wav2vec2-base-960h"
     )
-    resampled_waveform = resample_to_16k(samples_list, original_sample_rate=44100)
-
-    save_wav_file(samples_list, 44100, "my_recorded_audio.wav")
-    
-
     audio_values = audio_processor(
-        audio=samples_list, return_tensors="pt", sampling_rate=16000
+        audio=test_audio, return_tensors="pt", sampling_rate=16000
     ).input_values
 
 
