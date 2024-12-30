@@ -115,6 +115,27 @@ def new_inference_collator():
 
     return user_tokens
 
+def resample_to_16k(samples_list, original_sample_rate=48000):
+    """
+    Resample raw audio samples (list or 1D array) from original_sample_rate to 16 kHz.
+    Returns a PyTorch tensor at 16 kHz.
+    """
+    # Convert list -> torch.Tensor, shape = [num_samples]
+    waveform = torch.tensor(samples_list, dtype=torch.float32)
+
+    # For torchaudio transforms, shape must be [channels, num_samples].
+    # If it's mono, we can do unsqueeze(0) to get shape [1, num_samples].
+    waveform = waveform.unsqueeze(0)
+
+    # Create the resampling transform
+    resampler = torchaudio.transforms.Resample(orig_freq=original_sample_rate, new_freq=16000)
+    
+    # Apply the resampling
+    resampled_waveform = resampler(waveform)  # shape: [1, new_num_samples]
+
+    return resampled_waveform
+
+
 @app.post("/inference")
 async def inference(prompt_data: PromptRequest):
     max_length = prompt_data.max_length
@@ -126,8 +147,10 @@ async def inference(prompt_data: PromptRequest):
     audio_processor = transformers.Wav2Vec2Processor.from_pretrained(
         "facebook/wav2vec2-base-960h"
     )
+    resampled_waveform = resample_to_16k(samples_list, original_sample_rate=44100)
+
     audio_values = audio_processor(
-        audio=samples_list, return_tensors="pt", sampling_rate=44100
+        audio=resampled_waveform, return_tensors="pt", sampling_rate=16000
     ).input_values
 
 
