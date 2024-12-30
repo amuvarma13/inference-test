@@ -211,7 +211,7 @@ async def inference(prompt_data: PromptRequest):
 
     outs = loaded_model_custom.generate(
         **myinputs,
-        max_new_tokens=100,
+        max_new_tokens=1000,
         temperature=0.3,
         repetition_penalty=1.2,
         top_p=0.8,
