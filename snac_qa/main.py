@@ -148,6 +148,24 @@ def save_wav_file(samples_list, sample_rate, file_path):
             x = int(x * 32767)
             wf.writeframesraw(struct.pack('<h', x))
 
+def redistribute_codes(code_list):
+    layer_1 = []
+    layer_2 = []
+    layer_3 = []
+    for i in range((len(code_list)+1)//7):
+        layer_1.append(code_list[7*i])
+        layer_2.append(code_list[7*i+1]-4096)
+        layer_3.append(code_list[7*i+2]-(2*4096))
+        layer_3.append(code_list[7*i+3]-(3*4096))
+        layer_2.append(code_list[7*i+4]-(4*4096))
+        layer_3.append(code_list[7*i+5]-(5*4096))
+        layer_3.append(code_list[7*i+6]-(6*4096))
+
+    codes = [torch.tensor(layer_1).unsqueeze(0).to("cuda"),
+            torch.tensor(layer_2).unsqueeze(0).to("cuda"),
+            torch.tensor(layer_3).unsqueeze(0).to("cuda")]
+    audio_hat = snac_model.decode(codes)
+    return audio_hat
 
 @app.post("/inference")
 async def inference(prompt_data: PromptRequest):
@@ -201,6 +219,45 @@ async def inference(prompt_data: PromptRequest):
         )
     
     print(tokenizer.decode(outs[0], skip_special_tokens=True))
+    text_tokens = extract_tokens_after_value(outs[0], 128261, 128257)
+    text_tokens = text_tokens[1:-1]
+    text_response = tokenizer.decode(text_tokens)
+    
+    token_to_find = 128257
+    token_to_remove = 128263
+
+    # Check if the token exists in the tensor
+    token_indices = (outs == token_to_find).nonzero(as_tuple=True)
+
+    if len(token_indices[1]) > 0:
+        last_occurrence_idx = token_indices[1][-1].item()
+        cropped_tensor = outs[:, last_occurrence_idx+1:]
+    else:
+        cropped_tensor = outs
+
+    mask = cropped_tensor != token_to_remove
+    cropped_tensor = cropped_tensor[mask].view(cropped_tensor.size(0), -1)
+
+    processed_tensor = cropped_tensor - 128266
+    original_shape = processed_tensor.shape
+    new_dim_1 = (original_shape[1] // 7) * 7
+    processed_tensor = processed_tensor[:, :new_dim_1]
+    code_list = processed_tensor[0].tolist()
+  
+
+    samples = redistribute_codes(code_list)
+    print("my samples are", samples)
+
+    return {
+        # "input_prompt": prompt,
+        "inference_time": time.time() - start_time,
+        # "generated_shape": generated_ids.shape[1],
+        "text_response": text_response,
+        "max_length": max_length, 
+        "numpy_audio": samples.detach().cpu().numpy().tolist(),
+        # "generated_ids": generated_ids.tolist(), 
+
+    }
 
 
 
@@ -267,25 +324,7 @@ async def inference_text(prompt_data: TextPromptRequest):
     new_dim_1 = (original_shape[1] // 7) * 7
     processed_tensor = processed_tensor[:, :new_dim_1]
     code_list = processed_tensor[0].tolist()
-    def redistribute_codes(code_list):
-        layer_1 = []
-        layer_2 = []
-        layer_3 = []
-        for i in range((len(code_list)+1)//7):
-            layer_1.append(code_list[7*i])
-            layer_2.append(code_list[7*i+1]-4096)
-            layer_3.append(code_list[7*i+2]-(2*4096))
-            layer_3.append(code_list[7*i+3]-(3*4096))
-            layer_2.append(code_list[7*i+4]-(4*4096))
-            layer_3.append(code_list[7*i+5]-(5*4096))
-            layer_3.append(code_list[7*i+6]-(6*4096))
-
-        codes = [torch.tensor(layer_1).unsqueeze(0).to("cuda"),
-                torch.tensor(layer_2).unsqueeze(0).to("cuda"),
-                torch.tensor(layer_3).unsqueeze(0).to("cuda")]
-        audio_hat = snac_model.decode(codes)
-        return audio_hat
-
+  
 
     samples = redistribute_codes(code_list)
     print("my samples are", samples)
