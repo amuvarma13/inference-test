@@ -126,7 +126,6 @@ function sendAudioPostRequest(sample_list) {
 
     document.getElementById("textInput").classList.add("shimmer");
 
-
     const payload = {
         "samples_list": sample_list,
         "max_length": 150,
@@ -301,19 +300,33 @@ async function startRecording() {
         mediaRecorder.ondataavailable = (event) => {
             audioChunks.push(event.data);
         };
-
-        mediaRecorder.onstop = () => {
+        mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-            const audioUrl = URL.createObjectURL(audioBlob);
+            const arrayBuffer = await audioBlob.arrayBuffer();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          
+            // Now you have raw PCM for each channel:
+            const float32Array = audioBuffer.getChannelData(0);
+            console.log("Total samples:", float32Array.length);
+            const arrayfrom32 =  Array.from(float32Array);
+            console.log(arrayfrom32)
+            sendAudioPostRequest(arrayfrom32)
+            // Send this PCM data wherever you’d like
+          };
+          
 
-            // Print the total length of collected waveform data
-            sendAudioPostRequest(waveformData);
-            console.log('Total waveform samples collected:', waveformData.length);
+        // mediaRecorder.onstop = () => {
+        //     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        //     const audioUrl = URL.createObjectURL(audioBlob);
 
-            // Clean up
-            stream.getTracks().forEach(track => track.stop());
-            cancelAnimationFrame(animationFrame);
-        };
+        //     // Print the total length of collected waveform data
+        //     sendAudioPostRequest(waveformData);
+        //     console.log('Total waveform samples collected:', waveformData.length);
+
+        //     // Clean up
+        //     stream.getTracks().forEach(track => track.stop());
+        //     cancelAnimationFrame(animationFrame);
+        // };
 
         // Start recording and visualization
         mediaRecorder.start();

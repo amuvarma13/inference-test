@@ -163,9 +163,10 @@ async def inference(prompt_data: PromptRequest):
     resampled_waveform = resample_to_16k(samples_list, original_sample_rate=44100)
 
     save_wav_file(samples_list, 44100, "my_recorded_audio.wav")
+    
 
     audio_values = audio_processor(
-        audio=resampled_waveform, return_tensors="pt", sampling_rate=16000
+        audio=samples_list, return_tensors="pt", sampling_rate=16000
     ).input_values
 
 
@@ -193,7 +194,6 @@ async def inference(prompt_data: PromptRequest):
         eos_token_id=128258,
         )
     
-    print(outs)
     print(tokenizer.decode(outs[0], skip_special_tokens=True))
 
 
