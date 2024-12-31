@@ -300,6 +300,8 @@ async def inference_text(prompt_data: TextPromptRequest):
       eos_token_id=128258,
     )
 
+
+    print(outs)
     text_tokens = extract_tokens_after_value(outs[0], 128261, 128257)
     text_tokens = text_tokens[1:-1]
     text_response = tokenizer.decode(text_tokens)
@@ -324,7 +326,6 @@ async def inference_text(prompt_data: TextPromptRequest):
     new_dim_1 = (original_shape[1] // 7) * 7
     processed_tensor = processed_tensor[:, :new_dim_1]
     code_list = processed_tensor[0].tolist()
-    print(code_list)
   
 
     samples = redistribute_codes(code_list)
