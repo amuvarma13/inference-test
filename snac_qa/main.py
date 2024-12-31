@@ -211,7 +211,7 @@ async def inference(prompt_data: PromptRequest):
 
     outs = loaded_model_custom.generate(
         **myinputs,
-        max_new_tokens=1000,
+        max_new_tokens=1500,
         temperature=0.3,
         repetition_penalty=1.2,
         top_p=0.8,
@@ -324,6 +324,7 @@ async def inference_text(prompt_data: TextPromptRequest):
     new_dim_1 = (original_shape[1] // 7) * 7
     processed_tensor = processed_tensor[:, :new_dim_1]
     code_list = processed_tensor[0].tolist()
+    print(code_list)
   
 
     samples = redistribute_codes(code_list)

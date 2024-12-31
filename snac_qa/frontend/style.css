@@ -1,6 +1,8 @@
 body{
     max-width: 100vw;
     overflow-x: hidden;
+    max-height: 100vh;
+    overflow-y: scroll;
 }
 .shimmer {
     position: relative;
@@ -33,7 +35,6 @@ body {
     padding: 0;
     width: 100%;
     height: 100vh;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     background-color: #fff;
@@ -586,9 +587,9 @@ audio::-webkit-media-controls-enclosure {
     width: 90vw;
     height: 10px;
     /* background-color: blue; */
-    border-bottom: dashed 1px #999;
-    padding-top: 70px;
-    margin-bottom: 50px;
+    /* border-bottom: dashed 1px #999; */
+    padding-top: 10px;
+    margin-bottom: 10px;
 }
 
 .text-shown{
@@ -628,7 +629,7 @@ audio::-webkit-media-controls-enclosure {
 .loader {
     width: 50px;
     height: 50px;
-    border: 1px solid #f3f3f3;
+    border: 5px solid #f3f3f3;
     border-radius: 50%;
     border-top: 5px solid #9A30F3;
     position: relative;
@@ -687,4 +688,50 @@ audio::-webkit-media-controls-enclosure {
 
 .loader-container{
     display: none;
+}
+
+.prompt-section-holder{
+    width: 500px;
+    margin-top: 30px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+
+
+
+table {
+    border-collapse: collapse;
+    width: 80%;
+    margin: 20px auto;
+}
+
+/* Alternating row colors */
+tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+tbody tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+th, td {
+    border: 1px solid #333;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #eee;
+}
+
+audio {
+    outline: none;
+}
+
+.examples-header{
+    font-weight: 700;
+    text-align: center;
+    font-size: 1.2em;
+    border-top: solid 1px #aaa;
+    padding-top: 30px;
 }

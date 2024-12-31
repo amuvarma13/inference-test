@@ -4,6 +4,7 @@ const visualizer = document.getElementById('audioVisualizer');
 const BAR_COUNT = 40;
 const bars = [];
 
+const baseURL = "62ziqjjgu5au4g"
 for (let i = 0; i < BAR_COUNT; i++) {
     const bar = document.createElement('div');
     bar.className = 'visualizer-bar';
@@ -67,7 +68,7 @@ document.getElementById('textInput').addEventListener('keydown', function (event
     if (event.key === 'Enter') {
         const prompt = this.value.trim();
         if (prompt !== "") {
-
+            document.querySelector('.text-prompt-display').textContent = prompt;
 
             // userText.textContent = `MY PROMPT: <${selectedValue}> ${prompt} </${selectedValue}>`;
             // document.getElementById("outputsGen").style.display = "block";
@@ -81,12 +82,10 @@ document.getElementById('textInput').addEventListener('keydown', function (event
     }
 });
 
-"https://k66bdjupomoi7f-8080.proxy.runpod.net/inference";
 
 function sendPostRequest(prompt) {
-    const url = "https://mb2u57saut1wll-8080.proxy.runpod.net/inference-text";
+    const url = `https://${baseURL}-8080.proxy.runpod.net/inference-text`;
 
-    document.getElementById("textInput").classList.add("shimmer");
 
 
     const payload = {
@@ -122,9 +121,8 @@ function sendPostRequest(prompt) {
 }
 
 function sendAudioPostRequest(sample_list) {
-    const url = "https://mb2u57saut1wll-8080.proxy.runpod.net/inference";
+    const url = `https://${baseURL}-8080.proxy.runpod.net/inference`;
 
-    document.getElementById("textInput").classList.add("shimmer");
 
     const payload = {
         "samples_list": sample_list,
@@ -302,17 +300,24 @@ async function startRecording() {
         };
         mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audioPromptDisplay = document.querySelector(".audio-prompt-display");
+            audioPromptDisplay.innerHTML = "";
+            const promptAudio = document.createElement("audio");
+            promptAudio.controls = true;
+            promptAudio.src = audioUrl;
+            audioPromptDisplay.appendChild(promptAudio);
+        
             const arrayBuffer = await audioBlob.arrayBuffer();
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-          
-            // Now you have raw PCM for each channel:
             const float32Array = audioBuffer.getChannelData(0);
-            console.log("Total samples:", float32Array.length);
-            const arrayfrom32 =  Array.from(float32Array);
-            console.log(arrayfrom32)
-            sendAudioPostRequest(arrayfrom32)
-            // Send this PCM data wherever you’d like
-          };
+            const arrayFrom32 = Array.from(float32Array);
+            sendAudioPostRequest(arrayFrom32);
+        
+            cancelAnimationFrame(animationFrame);
+        };
+        
           
 
         // mediaRecorder.onstop = () => {
